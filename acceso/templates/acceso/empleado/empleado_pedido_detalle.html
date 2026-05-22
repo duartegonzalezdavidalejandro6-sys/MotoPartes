@@ -1,0 +1,160 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pedido #{{ pedido.idPedido }} — MotoPartes</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600;700&family=Barlow+Condensed:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'acceso/css/panel_empleado.css' %}">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-logo">MOTO<span>PARTES</span>
+    <small style="font-family:'Barlow',sans-serif;font-size:0.65rem;font-weight:600;text-transform:uppercase;letter-spacing:2px;color:var(--dim);margin-left:8px;">Panel Empleado</small>
+  </div>
+  <div class="topbar-right">
+    Hola, <strong style="color:var(--naranja);">{{ request.user.get_full_name|default:request.user.username }}</strong>
+    <div class="divider"></div>
+    <a href="{% url 'panel_empleado' %}" class="btn btn-dark btn-sm">🏠 Inicio</a>
+    <a href="{% url 'empleado_pedidos' %}" class="btn btn-dark btn-sm">📋 Pedidos</a>
+    <a href="{% url 'empleado_categorias' %}" class="btn btn-dark btn-sm">🗂 Categorías</a>
+    <a href="{% url 'index' %}" class="btn btn-salir btn-sm">← Tienda</a>
+    <a href="{% url 'logout' %}" class="btn btn-dark btn-sm">Salir</a>
+  </div>
+</div>
+
+{% if messages %}
+<div class="mensajes">
+  {% for message in messages %}
+  <div class="mensaje {{ message.tags }}">{{ message }}</div>
+  {% endfor %}
+</div>
+{% endif %}
+
+<div class="content">
+  <div class="page-wrap">
+    <a href="{% url 'empleado_pedidos' %}" class="back-link">← Volver a pedidos</a>
+    <div class="page-title">PEDIDO <span>#{{ pedido.idPedido }}</span></div>
+
+    <div class="grid-2">
+
+      <!-- ── Datos del cliente ── -->
+      <div class="card">
+        <div class="card-title">Cliente</div>
+        <p><strong>{{ pedido.idUsuario.nombreUsuario }} {{ pedido.idUsuario.apellidosUsuario }}</strong></p>
+        <p>Doc: <strong>{{ pedido.idUsuario.tipoDocUsuario }} {{ pedido.idUsuario.numDocUsuario }}</strong></p>
+        <p>Correo: <strong>{{ pedido.idUsuario.correoUsuario }}</strong></p>
+        {% if pedido.idUsuario.telefonoUsuario %}
+        <p>Teléfono: <strong>{{ pedido.idUsuario.telefonoUsuario }}</strong></p>
+        {% endif %}
+        {% if pedido.idUsuario.direccionUsuario %}
+        <p>Dirección: <strong>{{ pedido.idUsuario.direccionUsuario }}</strong></p>
+        {% endif %}
+      </div>
+
+      <!-- ── Datos del pedido ── -->
+      <div class="card">
+        <div class="card-title">Pedido</div>
+        <p>Fecha: <strong>{{ pedido.fechaPedido|date:"d/m/Y H:i" }}</strong></p>
+        <p>Método de pago: <strong>{{ pedido.metodoPago }}</strong></p>
+        <p>Sede:
+          <strong>
+            {% if pedido.sede %}{{ pedido.sede.nombre }} — {{ pedido.sede.ciudad }}{% else %}—{% endif %}
+          </strong>
+        </p>
+        {% if factura %}
+        <p>Factura: <strong>{{ factura.numeroFactura|default:factura.idFactura }}</strong></p>
+        {% endif %}
+        <p>Estado:
+          {% with e=pedido.estadoPedido|lower %}
+          <span class="badge
+            {% if e == 'procesado' %}badge-procesado
+            {% elif e == 'confirmado' %}badge-confirmado
+            {% elif e == 'en proceso' %}badge-proceso
+            {% elif e == 'listo' %}badge-listo
+            {% elif e == 'entregado' %}badge-entregado
+            {% elif e == 'cancelado' %}badge-cancelado
+            {% else %}badge-procesado{% endif %}">
+            {{ pedido.estadoPedido }}
+          </span>
+          {% endwith %}
+        </p>
+
+        <!-- Cambiar estado -->
+        <form method="post" class="estado-form">
+          {% csrf_token %}
+          <select name="estadoPedido" class="estado-sel">
+            {% for e in estados %}
+            <option value="{{ e }}" {% if e == pedido.estadoPedido %}selected{% endif %}>{{ e }}</option>
+            {% endfor %}
+          </select>
+          <button type="submit" class="btn-estado">GUARDAR</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- ── Productos del pedido ── -->
+    <div class="card">
+      <div class="card-title">Productos del pedido</div>
+      <table class="prod-table">
+        <thead>
+          <tr>
+            <th>Producto</th>
+            <th>Categoría</th>
+            <th style="text-align:center;">Cant.</th>
+            <th style="text-align:right;">Precio unit.</th>
+            <th style="text-align:right;">Subtotal</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for det in detalles %}
+          {% with subtotal_det=det.precioUnitario|floatformat:0 %}
+          <tr>
+            <td><strong>{{ det.idProducto.nombreProducto }}</strong></td>
+            <td style="color:var(--dim);">{{ det.idProducto.idCategoria_Producto.nombreCategoria|default:'—' }}</td>
+            <td style="text-align:center;">{{ det.cantidad }}</td>
+            <td style="text-align:right;color:var(--dim);">${{ det.precioUnitario|floatformat:0 }}</td>
+            {# Subtotal = precio * cantidad usando widthratio como multiplicador #}
+            <td style="text-align:right;">
+              ${% widthratio det.precioUnitario 1 det.cantidad %}
+            </td>
+          </tr>
+          {% endwith %}
+          {% empty %}
+          <tr>
+            <td colspan="5" style="text-align:center;color:var(--dim);padding:20px;">
+              Sin productos registrados
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+        <tfoot>
+          {% if factura and factura.subtotal %}
+          <tr>
+            <td colspan="4" style="text-align:right;color:var(--dim);">Subtotal</td>
+            <td style="text-align:right;">${{ factura.subtotal|floatformat:0 }}</td>
+          </tr>
+          <tr>
+            <td colspan="4" style="text-align:right;color:var(--dim);">IVA (19%)</td>
+            <td style="text-align:right;">${{ factura.iva|floatformat:0 }}</td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="4" style="text-align:right;color:var(--dim);">Subtotal</td>
+            <td style="text-align:right;">${{ pedido.totalPedido|floatformat:0 }}</td>
+          </tr>
+          {% endif %}
+          <tr>
+            <td colspan="4" style="text-align:right;">TOTAL FACTURADO</td>
+            <td style="text-align:right;">${{ pedido.totalPedido|floatformat:0 }}</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>

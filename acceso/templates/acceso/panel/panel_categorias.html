@@ -1,0 +1,57 @@
+{% extends 'acceso/panel/base_panel.html' %}
+{% block title %}Categorías{% endblock %}
+{% block nav_categorias %}activo{% endblock %}
+{% block topbar_titulo %}Categorías{% endblock %}
+
+{% block content %}
+<div class="seccion-header">
+  <span class="seccion-titulo">Categorías <span style="font-family:'Barlow',sans-serif;font-size:13px;font-weight:400;color:#9a948c;letter-spacing:0;text-transform:none;margin-left:4px">({{ categorias.count }})</span></span>
+  <a href="{% url 'panel_categoria_crear' %}" class="btn btn-primary">+ Nueva Categoría</a>
+</div>
+
+<form method="GET">
+  <div style="background:#fff;border:1px solid var(--borde);border-radius:10px;padding:16px 20px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:20px;box-shadow:0 2px 8px rgba(0,0,0,0.04)">
+
+    <div style="flex:1;min-width:200px;position:relative">
+      <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#c0bdb5;font-size:14px">🔍</span>
+      <input type="text" name="q" value="{{ q }}" placeholder="Buscar por nombre o descripción..."
+             style="width:100%;padding:9px 14px 9px 34px;background:var(--carbon);border:1px solid var(--borde);border-radius:7px;color:#1a1612;font-family:'Barlow',sans-serif;font-size:13px;outline:none;transition:all 0.2s"
+             onfocus="this.style.borderColor='var(--naranja)';this.style.boxShadow='0 0 0 3px rgba(255,85,0,0.09)';this.style.background='#fff'"
+             onblur="this.style.borderColor='var(--borde)';this.style.boxShadow='none';this.style.background='var(--carbon)'">
+    </div>
+
+    <div style="width:1px;height:32px;background:var(--borde);flex-shrink:0"></div>
+
+    <button type="submit" class="btn btn-primary btn-sm">Buscar</button>
+    <a href="{% url 'reporte_categorias_pdf' %}{% if q %}?q={{ q }}{% endif %}" class="btn btn-ghost btn-sm">📄 PDF</a>
+    {% if q %}<a href="{% url 'panel_categorias' %}" class="btn btn-dark btn-sm">✕ Limpiar</a>{% endif %}
+
+  </div>
+</form>
+
+<div class="tabla-wrap">
+  <table id="tabla-datos">
+    <thead>
+      <tr><th>#</th><th>Nombre</th><th>Descripción</th><th>Productos</th><th>Acciones</th></tr>
+    </thead>
+    <tbody>
+      {% for cat in categorias %}
+      <tr>
+        <td>{{ cat.pk }}</td>
+        <td><strong style="color:#1a1612">{{ cat.nombreCategoria }}</strong></td>
+        <td style="color:#9a948c">{{ cat.descripcion|default:"—" }}</td>
+        <td><span class="badge badge-naranja">{{ cat.num_productos }}</span></td>
+        <td>
+          <div class="acciones">
+            <a href="{% url 'panel_categoria_editar' cat.pk %}" class="btn btn-secondary btn-sm">✏ Editar</a>
+            <a href="{% url 'panel_categoria_eliminar' cat.pk %}" class="btn btn-danger btn-sm">🗑 Eliminar</a>
+          </div>
+        </td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="5" style="text-align:center;color:#b0aca4;padding:40px">No hay categorías registradas.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

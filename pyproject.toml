@@ -1,0 +1,26 @@
+[tool.black]
+line-length = 88
+exclude = '''
+/(
+    venv
+  | migrations
+  | __pycache__
+)/
+'''
+
+[tool.isort]
+profile = "black"
+line_length = 79
+skip = ["venv", "migrations"]
+
+[tool.flake8]
+max-line-length = 79
+exclude = [
+    "venv",
+    "migrations",
+    "__pycache__"
+]
+ignore = [
+    "W503",
+    "E203"
+]

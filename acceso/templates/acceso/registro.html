@@ -1,0 +1,133 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MotoPartes — Registro</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600;700&family=Barlow+Condensed:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'acceso/css/login.css' %}">
+  <link rel="stylesheet" href="{% static 'acceso/css/registro.css' %}">
+</head>
+<body>
+
+<div class="login-page">
+
+  <!-- LADO IZQUIERDO -->
+  <div class="login-left">
+    <div class="left-bg"></div>
+    <div class="left-grid"></div>
+    <div class="left-glow"></div>
+    <div class="moto-bg"></div>
+    <div class="left-content">
+      <a href="{% url 'index' %}" class="back-link">← Volver al inicio</a>
+      <div class="brand-tag">Est. 2018</div>
+      <div class="brand-name">MOTO<span>PARTES</span></div>
+      <p class="brand-desc">Únete a miles de moteros que ya confían en nosotros para mantener su moto en perfecto estado.</p>
+      <div class="left-stats">
+        <div>
+          <div class="left-stat-num">5K+</div>
+          <div class="left-stat-label">Referencias</div>
+        </div>
+        <div>
+          <div class="left-stat-num">24H</div>
+          <div class="left-stat-label">Despacho</div>
+        </div>
+        <div>
+          <div class="left-stat-num">100%</div>
+          <div class="left-stat-label">Garantía</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LADO DERECHO -->
+  <div class="login-right">
+    <div class="form-wrap" style="max-width:460px">
+      <div class="form-header">
+        <div class="form-logo">MOTO<span>PARTES</span></div>
+        <div class="form-title">CREAR CUENTA</div>
+        <p class="form-sub">Regístrate para comprar repuestos</p>
+      </div>
+
+      {% if messages %}
+        {% for message in messages %}
+        <div class="form-error" style="{% if 'success' in message.tags %}background:rgba(0,200,100,0.1);border-color:rgba(0,200,100,0.3);color:#4ade80{% endif %}">
+          {{ message }}
+        </div>
+        {% endfor %}
+      {% endif %}
+
+      <form method="POST">
+        {% csrf_token %}
+        <div class="register-grid">
+
+          <!-- Nombre -->
+<input type="text" name="nombreUsuario" class="form-input" required
+  placeholder="Tu nombre" pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+"
+  title="Solo letras, sin números"
+  value="{{ form_data.nombreUsuario|default:'' }}">
+
+<!-- Apellidos -->
+<input type="text" name="apellidosUsuario" class="form-input"
+  placeholder="Tus apellidos" pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+"
+  title="Solo letras, sin números"
+  value="{{ form_data.apellidosUsuario|default:'' }}">
+          <div class="form-group">
+
+
+            <label class="form-label">Tipo de Documento</label>
+            <select name="tipoDocUsuario" class="form-input">
+              <option value="CC" {% if form_data.tipoDocUsuario == 'CC' %}selected{% endif %}>Cédula de Ciudadanía</option>
+              <option value="CE" {% if form_data.tipoDocUsuario == 'CE' %}selected{% endif %}>Cédula Extranjería</option>
+              <option value="PA" {% if form_data.tipoDocUsuario == 'PA' %}selected{% endif %}>Pasaporte</option>
+              <option value="NIT" {% if form_data.tipoDocUsuario == 'NIT' %}selected{% endif %}>NIT</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Número de Documento *</label>
+            <input type="number" name="numDocUsuario" class="form-input" required
+              placeholder="1234567890" value="{{ form_data.numDocUsuario|default:'' }}">
+          </div>
+
+          <div class="form-group full">
+            <label class="form-label">Correo electrónico *</label>
+            <input type="email" name="correoUsuario" class="form-input" required
+              placeholder="correo@ejemplo.com" value="{{ form_data.correoUsuario|default:'' }}">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Teléfono</label>
+            <input type="number" name="telefonoUsuario" class="form-input"
+              placeholder="3001234567" value="{{ form_data.telefonoUsuario|default:'' }}">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Dirección</label>
+            <input type="text" name="direccionUsuario" class="form-input"
+              placeholder="Calle 10 # 5-20" value="{{ form_data.direccionUsuario|default:'' }}">
+          </div>
+
+          <!-- Contraseña -->
+<input type="password" name="claveUsuario" class="form-input" required
+  placeholder="Mínimo 8 caracteres" minlength="8">
+
+<!-- Confirmar -->
+<input type="password" name="claveUsuario2" class="form-input" required
+  placeholder="Repite la contraseña" minlength="8">
+
+        </div>
+
+        <button type="submit" class="form-submit">Crear cuenta →</button>
+      </form>
+
+      <div class="form-footer">
+        ¿Ya tienes cuenta? <a href="{% url 'login' %}">Inicia sesión aquí</a>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

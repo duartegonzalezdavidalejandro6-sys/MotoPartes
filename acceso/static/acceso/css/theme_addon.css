@@ -1,0 +1,145 @@
+/* ============================================================
+   MOTOPARTES — theme_addon.css — Tema Claro
+   ⚠️  AÑADIR AL FINAL de: acceso/static/acceso/css/styles.css
+   ============================================================ */
+
+/* Variables globales de tema claro */
+:root {
+  --negro:      #ffffff;
+  --carbon:     #f5f4f2;
+  --gris:       #eeede9;
+  --borde:      #dddbd4;
+  --naranja:    #ff5500;
+  --naranja2:   #ff7a00;
+  --blanco:     #1a1612;
+  --texto:      #9a948c;
+  --superficie: #ffffff;
+  --fondo2:     #f5f4f2;
+  --texto2:     #2e2a25;
+}
+
+/* Inputs y formularios */
+.form-input {
+  background: #f5f4f2 !important;
+  color: #1a1612 !important;
+  border-color: #dddbd4 !important;
+}
+.form-input::placeholder { color: #c0bdb5 !important; }
+.form-input:focus {
+  background: #ffffff !important;
+  border-color: var(--naranja) !important;
+  box-shadow: 0 0 0 3px rgba(255,85,0,0.08) !important;
+}
+.form-input:disabled { opacity: 0.5; }
+
+/* Cards genéricas */
+.perfil-card,
+.fac-card,
+.tracker-wrap,
+.det-card,
+.feat-card,
+.stat,
+.sede-card {
+  background: #ffffff !important;
+  border-color: #dddbd4 !important;
+  color: #2e2a25 !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04) !important;
+}
+
+/* Textos secundarios */
+.info-label,
+.perfil-rol,
+.oferta-desc,
+.fac-label,
+.sede-addr,
+.footer-copy,
+.hero-desc,
+.feat-desc,
+.rel-cat,
+.det-stock,
+.tracker-desc {
+  color: #9a948c !important;
+}
+
+/* Textos principales */
+.perfil-nombre,
+.info-value,
+.fac-value,
+.sede-name,
+.det-nombre,
+.rel-nombre,
+.stat-num {
+  color: #1a1612 !important;
+}
+
+/* Tabs */
+.tab {
+  background: #f0eeea !important;
+  color: #7a746a !important;
+  border-color: #dddbd4 !important;
+}
+.tab.active {
+  background: var(--naranja) !important;
+  color: #fff !important;
+  border-color: var(--naranja) !important;
+}
+
+/* Botones primarios */
+.btn-guardar,
+.btn-primary,
+.fac-btn-imprimir {
+  background: var(--naranja) !important;
+  color: #fff !important;
+}
+
+/* Nav items en el sidebar (sidebar sigue oscuro) */
+.nav-item { color: #a09890 !important; }
+.nav-item:hover,
+.nav-item.active { background: rgba(255,85,0,0.12) !important; color: #f0ece4 !important; }
+
+/* Sección oscura alternativa */
+.section-dark { background: #f5f4f2 !important; }
+
+/* Hero glow */
+.hero-glow { opacity: 0.35; }
+
+/* Stats bar */
+.stats-bar { background: #f5f4f2 !important; border-color: #dddbd4 !important; }
+
+/* Tabla de facturas */
+.fac-table th { background: #f0eeea !important; color: #7a746a !important; }
+.fac-table td { color: #2e2a25 !important; border-color: #dddbd4 !important; }
+.fac-table tr:hover td { background: #faf9f7 !important; }
+
+/* Footer */
+.footer { background: #f5f4f2 !important; border-color: #dddbd4 !important; }
+
+/* Oferta box */
+.oferta-box { background: rgba(255,85,0,0.06) !important; border-color: rgba(255,85,0,0.22) !important; }
+
+/* Badge naranja siempre */
+.cart-badge { background: var(--naranja) !important; color: #fff !important; }
+
+/* Modal */
+.modal {
+  background: #ffffff !important;
+  border-color: #dddbd4 !important;
+  color: #1a1612 !important;
+}
+.modal-logo { color: #1a1612 !important; }
+
+/* Scrollbar */
+::-webkit-scrollbar-track { background: #f0eeea !important; }
+
+/* Hero background claro */
+.hero-bg {
+  background:
+    linear-gradient(135deg, rgba(255,255,255,0.97) 0%, rgba(255,255,255,0.75) 55%, rgba(255,248,240,0.9) 100%),
+    repeating-linear-gradient(45deg, transparent, transparent 40px, rgba(255,85,0,0.012) 40px, rgba(255,85,0,0.012) 41px) !important;
+}
+
+.hero-grid {
+  background-image:
+    linear-gradient(rgba(255,85,0,0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,85,0,0.05) 1px, transparent 1px) !important;
+}
