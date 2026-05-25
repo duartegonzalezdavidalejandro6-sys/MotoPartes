@@ -1,0 +1,34 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Confirmar Eliminación — MotoPartes</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'acceso/css/panel_empleado.css' %}">
+</head>
+<body>
+<div class="confirm-wrap">
+  <div class="confirm-card">
+    <div class="confirm-icon">⚠️</div>
+    <div class="confirm-titulo">¿Confirmar eliminación?</div>
+    <p class="confirm-desc">
+      {% if producto %}
+        ¿Estás seguro de eliminar el producto <strong>{{ producto.nombreProducto }}</strong>?
+      {% elif categoria %}
+        ¿Estás seguro de eliminar la categoría <strong>{{ categoria.nombreCategoria }}</strong>?
+      {% else %}
+        ¿Estás seguro? Esta acción no se puede deshacer.
+      {% endif %}
+    </p>
+    <div class="confirm-actions">
+      <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Sí, eliminar</button>
+      </form>
+      <a href="javascript:history.back()" class="btn btn-dark">Cancelar</a>
+    </div>
+  </div>
+</div>
+</body>
+</html>

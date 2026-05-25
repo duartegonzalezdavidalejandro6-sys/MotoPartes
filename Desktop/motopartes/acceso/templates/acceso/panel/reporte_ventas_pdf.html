@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Reporte de Ventas — MotoPartes</title>
+  <style>
+    body { font-family: Arial, sans-serif; font-size: 12px; color: #222; margin: 30px; }
+    h1 { font-size: 22px; color: #e85d04; margin-bottom: 4px; }
+    .subtitulo { font-size: 11px; color: #666; margin-bottom: 20px; }
+    .filtros { font-size: 11px; color: #888; margin-bottom: 16px; }
+
+    .stats { display: flex; gap: 16px; margin-bottom: 24px; flex-wrap: wrap; }
+    .stat-box {
+      border: 1px solid #ddd; border-radius: 6px;
+      padding: 10px 16px; min-width: 130px; text-align: center;
+    }
+    .stat-box .val { font-size: 18px; font-weight: bold; color: #e85d04; }
+    .stat-box .lbl { font-size: 10px; color: #888; margin-top: 2px; }
+
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th { background: #e85d04; color: #fff; padding: 7px 10px; text-align: left; font-size: 11px; }
+    td { padding: 6px 10px; border-bottom: 1px solid #eee; font-size: 11px; }
+    tr:nth-child(even) td { background: #fafafa; }
+
+    .badge { padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: bold; }
+    .verde  { background: #d4edda; color: #155724; }
+    .rojo   { background: #f8d7da; color: #721c24; }
+    .amarillo { background: #fff3cd; color: #856404; }
+    .azul   { background: #d1ecf1; color: #0c5460; }
+
+    .footer { margin-top: 30px; font-size: 10px; color: #aaa; text-align: right; }
+    .seccion-titulo { font-size: 13px; font-weight: bold; color: #333;
+                      border-left: 3px solid #e85d04; padding-left: 8px; margin: 20px 0 10px; }
+  </style>
+</head>
+<body>
+
+  <h1>MOTOPARTES — Reporte de Ventas</h1>
+  <div class="subtitulo">Generado el {{ fecha_reporte }}</div>
+  {% if filtros %}
+  <div class="filtros">Filtros aplicados: {{ filtros }}</div>
+  {% endif %}
+
+  {# ── Métricas resumen ── #}
+  <div class="stats">
+    <div class="stat-box">
+      <div class="val">{{ total_ventas }}</div>
+      <div class="lbl">Total Ventas</div>
+    </div>
+    <div class="stat-box">
+      <div class="val">${{ total_ingresos|floatformat:0 }}</div>
+      <div class="lbl">Ingresos Totales</div>
+    </div>
+    <div class="stat-box">
+      <div class="val">${{ ticket_promedio|floatformat:0 }}</div>
+      <div class="lbl">Ticket Promedio</div>
+    </div>
+    <div class="stat-box">
+      <div class="val">{{ ventas_entregadas }}</div>
+      <div class="lbl">Entregadas</div>
+    </div>
+  </div>
+
+  {# ── Tabla de ventas ── #}
+  <div class="seccion-titulo">Detalle de Ventas</div>
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Factura</th>
+        <th>Cliente</th>
+        <th>Ciudad</th>
+        <th>Método</th>
+        <th>Total</th>
+        <th>Estado</th>
+        <th>Fecha</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for pedido in pedidos %}
+      <tr>
+        <td>{{ pedido.idPedido }}</td>
+        <td>{% if pedido.factura %}{{ pedido.factura.numeroFactura }}{% else %}—{% endif %}</td>
+        <td>{{ pedido.idUsuario.nombreUsuario }} {{ pedido.idUsuario.apellidosUsuario }}</td>
+        <td>{{ pedido.ciudad }}</td>
+        <td>{{ pedido.metodoPago }}</td>
+        <td>${{ pedido.totalPedido|floatformat:0 }}</td>
+        <td>
+          {% if pedido.estadoPedido == 'Entregado' %}
+            <span class="badge verde">Entregado</span>
+          {% elif pedido.estadoPedido == 'Cancelado' %}
+            <span class="badge rojo">Cancelado</span>
+          {% elif pedido.estadoPedido == 'Procesado' %}
+            <span class="badge amarillo">Procesado</span>
+          {% else %}
+            <span class="badge azul">{{ pedido.estadoPedido }}</span>
+          {% endif %}
+        </td>
+        <td>{{ pedido.fechaPedido|date:"d/m/Y" }}</td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="8" style="text-align:center; color:#aaa; padding:16px;">Sin ventas con los filtros aplicados.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <div class="footer">MotoPartes © {{ fecha_reporte }}</div>
+
+</body>
+</html>

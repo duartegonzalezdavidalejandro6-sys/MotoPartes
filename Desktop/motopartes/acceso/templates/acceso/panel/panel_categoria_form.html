@@ -1,0 +1,38 @@
+{% extends 'acceso/panel/base_panel.html' %}
+{% block title %}{{ titulo }}{% endblock %}
+{% block nav_categorias %}activo{% endblock %}
+{% block topbar_titulo %}{{ titulo }}{% endblock %}
+
+{% block content %}
+<div class="seccion-header">
+  <span class="seccion-titulo">{{ titulo }}</span>
+  <a href="{% url 'panel_categorias' %}" class="btn btn-dark">← Volver</a>
+</div>
+
+<form method="post">
+  {% csrf_token %}
+  <div class="form-card">
+    <div class="form-section-titulo">Datos de la Categoría</div>
+    <div class="form-body">
+
+      <div class="form-group" style="margin-bottom:18px">
+        <label class="form-label">Nombre *</label>
+        <input class="form-control" type="text" name="nombreCategoria"
+               value="{{ categoria.nombreCategoria|default:'' }}"
+               placeholder="Ej: Frenos, Motor, Eléctrico..." required>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Descripción</label>
+        <textarea class="form-control" name="descripcion" rows="3"
+                  placeholder="Descripción breve de la categoría...">{{ categoria.descripcion|default:'' }}</textarea>
+      </div>
+
+    </div>
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary">💾 Guardar</button>
+      <a href="{% url 'panel_categorias' %}" class="btn btn-dark">Cancelar</a>
+    </div>
+  </div>
+</form>
+{% endblock %}

@@ -1,0 +1,90 @@
+{% extends 'acceso/panel/base_panel.html' %}
+{% block title %}{{ titulo }}{% endblock %}
+{% block topbar_titulo %}{{ titulo }}{% endblock %}
+{% block nav_productos %}activo{% endblock %}
+
+{% block content %}
+<div class="seccion-header">
+  <span class="seccion-titulo">{{ titulo }}</span>
+  <a href="{% url 'panel_productos' %}" class="btn btn-dark">← Volver</a>
+</div>
+
+<div class="form-card">
+  <div class="form-section-titulo">Información del Producto</div>
+  <form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="form-body">
+      <div class="form-grid">
+
+        <div class="form-group">
+          <label class="form-label">Nombre del producto *</label>
+          <input type="text" name="nombreProducto"
+                 value="{{ producto.nombreProducto|default:'' }}"
+                 class="form-control" required
+                 placeholder="Ej: Kit Pistón Honda CB125">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Categoría</label>
+          <select name="idCategoria_Producto" class="form-control">
+            <option value="">— Sin categoría —</option>
+            {% for cat in categorias %}
+            <option value="{{ cat.idCategoria_Producto }}"
+              {% if producto.idCategoria_Producto.idCategoria_Producto == cat.idCategoria_Producto %}selected{% endif %}>
+              {{ cat.nombreCategoria }}
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Precio *</label>
+          <input type="number" name="precioProducto"
+                 value="{{ producto.precioProducto|default:'' }}"
+                 class="form-control" required min="0" step="0.01"
+                 placeholder="0.00">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Stock</label>
+          <input type="number" name="stock"
+                 value="{{ producto.stock|default:'0' }}"
+                 class="form-control" min="0">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Estado</label>
+          <select name="estadoProducto" class="form-control">
+            <option value="Disponible"    {% if producto.estadoProducto == 'Disponible' %}selected{% endif %}>Disponible</option>
+            <option value="Agotado"       {% if producto.estadoProducto == 'Agotado' %}selected{% endif %}>Agotado</option>
+            <option value="Descontinuado" {% if producto.estadoProducto == 'Descontinuado' %}selected{% endif %}>Descontinuado</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Imagen</label>
+          {% if producto.imagen %}
+          <div style="margin-bottom:8px">
+            <img src="{{ producto.imagen.url }}"
+                 style="height:64px;border-radius:6px;border:1px solid var(--borde);object-fit:cover;">
+          </div>
+          {% endif %}
+          <input type="file" name="imagen" class="form-control" accept="image/*">
+        </div>
+
+        <div class="form-group full">
+          <label class="form-label">Descripción</label>
+          <textarea name="descripcion" class="form-control" rows="4"
+                    placeholder="Descripción del producto, compatibilidad, materiales...">{{ producto.descripcion|default:'' }}</textarea>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary">💾 Guardar Producto</button>
+      <a href="{% url 'panel_productos' %}" class="btn btn-dark">Cancelar</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

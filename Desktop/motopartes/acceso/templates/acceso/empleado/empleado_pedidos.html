@@ -1,0 +1,107 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pedidos — Panel Empleado MotoPartes</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'acceso/css/panel_empleado.css' %}">
+  <link rel="stylesheet" href="{% static 'acceso/css/empleado_pedidos.css' %}">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-logo">MOTO<span>PARTES</span>
+    <small style="font-family:'Barlow',sans-serif;font-size:0.65rem;font-weight:600;text-transform:uppercase;letter-spacing:2px;color:var(--dim);margin-left:8px;">Panel Empleado</small>
+  </div>
+  <div class="topbar-right">
+    Hola, <strong style="color:var(--naranja);">{{ request.user.get_full_name|default:request.user.username }}</strong>
+    <div class="divider"></div>
+    <a href="{% url 'panel_empleado' %}"     class="btn btn-dark btn-sm">Inicio</a>
+    <a href="{% url 'empleado_pedidos' %}"   class="btn btn-dark btn-sm">Pedidos</a>
+    <a href="{% url 'empleado_categorias' %}" class="btn btn-dark btn-sm">Categorías</a>
+    <a href="{% url 'index' %}"              class="btn btn-salir btn-sm">← Tienda</a>
+    <a href="{% url 'logout' %}"             class="btn btn-dark btn-sm">Salir</a>
+  </div>
+</div>
+
+{% if messages %}
+<div class="mensajes">
+  {% for message in messages %}<div class="mensaje {{ message.tags }}">{{ message }}</div>{% endfor %}
+</div>
+{% endif %}
+
+<div class="content">
+  <div class="seccion-header">
+    <span class="seccion-titulo">📋 Pedidos</span>
+  </div>
+
+  <!-- Filtros -->
+  <form method="GET" style="margin-bottom:16px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+    <select name="estado" style="padding:8px 10px;background:var(--bg3);border:1px solid var(--border);color:var(--texto);border-radius:3px;font-family:'Barlow',sans-serif;font-size:0.88rem;outline:none;">
+      <option value="">Todos los estados</option>
+      {% for e in estados %}
+      <option value="{{ e }}" {% if e == estado_actual %}selected{% endif %}>{{ e }}</option>
+      {% endfor %}
+    </select>
+    <select name="sede" style="padding:8px 10px;background:var(--bg3);border:1px solid var(--border);color:var(--texto);border-radius:3px;font-family:'Barlow',sans-serif;font-size:0.88rem;outline:none;">
+      <option value="">Todas las sedes</option>
+      {% for s in sedes %}
+      <option value="{{ s.idSede }}" {% if s.idSede|stringformat:"s" == sede_actual %}selected{% endif %}>{{ s.nombre }}</option>
+      {% endfor %}
+    </select>
+    <button type="submit" class="btn btn-dark btn-sm">Filtrar</button>
+    {% if estado_actual or sede_actual %}
+    <a href="{% url 'empleado_pedidos' %}" class="btn btn-dark btn-sm">✕ Limpiar</a>
+    {% endif %}
+  </form>
+
+  <div class="tabla-wrap">
+    <table class="tabla">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Cliente</th>
+          <th>Sede</th>
+          <th>Método pago</th>
+          <th>Total</th>
+          <th>Fecha</th>
+          <th>Estado</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for pedido in pedidos %}
+        <tr>
+          <td style="color:var(--naranja);font-weight:700;">#{{ pedido.idPedido }}</td>
+          <td>
+            <strong>{{ pedido.idUsuario.nombreUsuario }} {{ pedido.idUsuario.apellidosUsuario|default:'' }}</strong>
+            <div style="font-size:11px;color:var(--dim);">{{ pedido.idUsuario.correoUsuario|default:'—' }}</div>
+          </td>
+          <td style="color:var(--dim);">{{ pedido.sede.nombre|default:'—' }}</td>
+          <td>{{ pedido.metodoPago }}</td>
+          <td style="color:var(--naranja);font-weight:700;">${{ pedido.totalPedido|floatformat:0 }}</td>
+          <td style="font-size:11px;color:var(--dim);">{{ pedido.fechaPedido|date:"d/m/Y H:i" }}</td>
+          <td>
+            <span class="badge
+              {% if pedido.estadoPedido == 'Entregado' %}badge-verde
+              {% elif pedido.estadoPedido == 'Cancelado' %}badge-rojo
+              {% elif pedido.estadoPedido == 'Procesado' %}badge-azul
+              {% else %}badge-amarillo{% endif %}">
+              {{ pedido.estadoPedido }}
+            </span>
+          </td>
+          <td>
+            <a href="{% url 'empleado_pedido_detalle' pedido.idPedido %}" class="btn btn-dark btn-sm">Ver →</a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="8" class="tabla-vacia">No hay pedidos registrados.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+</body>
+</html>

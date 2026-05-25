@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+</head>
+<body>
+  <div class="clearfix">
+    <div class="empresa-info">
+      MotoPartes S.A.S<br>
+      Generado: {{ fecha|date:"d/m/Y, g:i a" }}<br>
+      Documento Interno
+    </div>
+    <div class="logo">MOTO<span>PARTES</span></div>
+  </div>
+  <hr>
+  <div class="titulo">Reporte de Clientes</div>
+  <div class="subtitulo">
+    {% if q %}Búsqueda: "{{ q }}" &nbsp;|&nbsp;{% endif %}
+    {{ total }} registro{{ total|pluralize }} &nbsp;|&nbsp; {{ fecha|date:"d/m/Y" }}
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Nombre</th>
+        <th>Documento</th>
+        <th>Correo</th>
+        <th>Teléfono</th>
+        <th>Pedidos</th>
+        <th>Estado</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for c in clientes %}
+      <tr>
+        <td>{{ c.nombreUsuario }} {{ c.apellidosUsuario|default:'' }}</td>
+        <td>{{ c.tipoDocUsuario }} {{ c.numDocUsuario }}</td>
+        <td>{{ c.correoUsuario|default:"—" }}</td>
+        <td>{{ c.telefonoUsuario|default:"—" }}</td>
+        <td style="text-align:center;">{{ c.num_pedidos }}</td>
+        <td>
+          {% if c.estadoUsuario == 'A' %}
+            <span class="badge-verde">Activo</span>
+          {% else %}
+            <span class="badge-rojo">Inactivo</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="6" style="text-align:center;padding:12px;">Sin clientes registrados</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <div class="footer">MotoPartes &copy; {% now "Y" %} &nbsp;|&nbsp; Página <pdf:pagenumber> de <pdf:pagecount></div>
+</body>
+</html>

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"></head>
+<body style="font-family: Arial, sans-serif; color: #333;">
+  <div style="max-width:600px; margin:auto; border:1px solid #ddd; border-radius:8px; overflow:hidden;">
+    <div style="background:#e63946; padding:20px; text-align:center;">
+      <h1 style="color:white; margin:0;">🏍️ Motopartes</h1>
+    </div>
+    <div style="padding:30px;">
+      <h2>¡Pedido confirmado, {{ nombre_cliente }}!</h2>
+      <p>Tu pedido <strong>#{{ pedido.idPedido }}</strong> ha sido recibido exitosamente.</p>
+
+      <table style="width:100%; border-collapse:collapse; margin:20px 0;">
+        <tr style="background:#f5f5f5;">
+          <th style="padding:10px; text-align:left;">Producto</th>
+          <th style="padding:10px; text-align:right;">Cant.</th>
+          <th style="padding:10px; text-align:right;">Precio</th>
+        </tr>
+        {% for detalle in detalles %}
+        <tr style="border-bottom:1px solid #eee;">
+          <td style="padding:10px;">{{ detalle.idProducto.nombreProducto }}</td>
+          <td style="padding:10px; text-align:right;">{{ detalle.cantidad }}</td>
+          <td style="padding:10px; text-align:right;">${{ detalle.precioUnitario|floatformat:0 }}</td>
+        </tr>
+        {% endfor %}
+      </table>
+
+      <table style="width:100%; margin-top:10px;">
+        <tr><td>Subtotal:</td><td style="text-align:right;">${{ factura.subtotal|floatformat:0 }}</td></tr>
+        <tr><td>IVA (19%):</td><td style="text-align:right;">${{ factura.iva|floatformat:0 }}</td></tr>
+        {% if pedido.costo_envio %}
+        <tr><td>Envío:</td><td style="text-align:right;">${{ pedido.costo_envio|floatformat:0 }}</td></tr>
+        {% endif %}
+        <tr style="font-weight:bold; font-size:1.1em;">
+          <td>Total:</td><td style="text-align:right;">${{ pedido.totalPedido|floatformat:0 }}</td>
+        </tr>
+      </table>
+
+      <hr style="margin:20px 0;">
+      <p><strong>Método de pago:</strong> {{ pedido.metodoPago }}</p>
+      {% if pedido.tipo_entrega == 'sede' %}
+      <p><strong>Entrega:</strong> Recoger en {{ pedido.sede }}</p>
+      {% else %}
+      <p><strong>Entrega:</strong> Domicilio — {{ pedido.direccion_domicilio }}, {{ pedido.barrio_domicilio }}, {{ pedido.ciudad_domicilio }}</p>
+      {% endif %}
+      <p><strong>Factura:</strong> {{ factura.numeroFactura }}</p>
+
+      <p style="margin-top:30px; color:#777;">Gracias por tu compra 🙌<br>Equipo Motopartes</p>
+    </div>
+  </div>
+</body>
+</html>
