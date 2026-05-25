@@ -1,0 +1,259 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MOTOPARTES — Partes & Repuestos Moto</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600;700&family=Barlow+Condensed:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'acceso/css/styles.css' %}">
+</head>
+<body>
+
+<!-- SIDEBAR -->
+
+<aside class="sidebar">
+  <div class="logo-wrap">
+    <div class="logo-name">MOTO<span>PARTES</span></div>
+  </div>
+
+  <nav class="nav-section">
+    <div class="nav-label">Menú</div>
+    <a href="#inicio" class="nav-item active">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+      Inicio
+    </a>
+    <a href="#empresa" class="nav-item">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+      La Empresa
+    </a>
+    <a href="{% url 'productos' %}" class="nav-item">
+  <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <rect x="2" y="3" width="20" height="14" rx="2"/>
+    <path d="M8 21h8M12 17v4"/>
+  </svg>
+  Productos
+</a>
+    <a href="#sedes" class="nav-item">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      Sedes
+    </a>
+    <a href="#contacto" class="nav-item">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.1 1.18 2 2 0 012.11 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 7.09a16 16 0 006 6l.45-.45a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+      Contacto
+    </a>
+  </nav>
+
+  <div style="padding: 16px; margin-top: 12px;">
+    <div class="oferta-box">
+      <div class="oferta-title">OFERTA HOY</div>
+      <div class="oferta-desc">Hasta 30% en frenos y suspensión</div>
+    </div>
+  </div>
+  {% if user.is_authenticated %}
+  <nav class="nav-section" style="border-top:1px solid var(--borde);padding-top:16px;margin-top:8px;">
+    <div class="nav-label">Mi Cuenta</div>
+    {% if user.is_staff %}
+      <a href="{% url 'panel_dashboard' %}" class="nav-item">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        Panel Admin
+      </a>
+    {% elif user.empleado %}
+      <a href="{% url 'panel_empleado' %}" class="nav-item">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        Mi Panel
+      </a>
+    {% else %}
+      <a href="{% url 'ver_carrito' %}" class="nav-item">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg>
+        Mi Carrito
+        {% with total=request.user.carrito.count %}{% if total > 0 %}
+        <span style="margin-left:auto;background:#ff5500;color:#fff;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;">{{ total }}</span>
+        {% endif %}{% endwith %}
+      </a>
+      <a href="{% url 'mis_compras' %}" class="nav-item">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/></svg>
+        Mis Compras
+      </a>
+      <a href="{% url 'mis_facturas' %}" class="nav-item">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        Mis Facturas
+      </a>
+      <a href="{% url 'mi_perfil' %}" class="nav-item">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        Mi Perfil
+      </a>
+    {% endif %}
+  </nav>
+  {% endif %}
+
+  <div class="sidebar-footer">
+    {% if user.is_authenticated %}
+      <div class="user-info">
+        <div class="user-name"> {{ user.get_full_name|default:user.username }}</div>
+        {% if user.is_staff %}
+          <div style="font-size:10px;letter-spacing:2px;color:#e63946;text-transform:uppercase;margin-bottom:8px;">Administrador</div>
+        {% elif user.empleado %}
+          <div style="font-size:10px;letter-spacing:2px;color:#f39c12;text-transform:uppercase;margin-bottom:8px;">Empleado</div>
+        {% else %}
+          <div style="font-size:10px;letter-spacing:2px;color:var(--naranja);text-transform:uppercase;margin-bottom:8px;">Cliente</div>
+        {% endif %}
+        <a href="{% url 'logout' %}" class="login-btn" style="display:block;text-align:center;text-decoration:none;margin-top:8px;">Cerrar Sesión</a>
+      </div>
+    {% else %}
+      <a href="{% url 'login' %}" class="login-btn" style="display:block;text-align:center;text-decoration:none;">🔐 Iniciar Sesión</a>
+      <a href="{% url 'registro' %}" style="display:block;text-align:center;text-decoration:none;margin-top:8px;color:#888;font-size:12px;">¿No tienes cuenta? Regístrate</a>
+    {% endif %}
+  </div>
+</aside>
+
+<!-- MAIN -->
+
+<main class="main">
+
+  <!-- HERO -->
+
+  <section class="hero" id="inicio">
+    <div class="hero-bg"></div>
+    <div class="hero-grid"></div>
+    <div class="hero-glow"></div>
+    <div class="moto-silhouette"></div>
+
+    <div class="hero-content">
+      <div class="hero-eyebrow fade-in">Repuestos & Partes Originales</div>
+      <h1 class="hero-title fade-in delay-1">
+        TU MOTO<br>
+        <span class="accent">AL LÍMITE</span><br>
+        SIEMPRE
+      </h1>
+      <p class="hero-desc fade-in delay-2">
+        Somos el distribuidor líder de partes y repuestos para motocicletas en Colombia. Calidad garantizada, envío a todo el país.
+      </p>
+
+
+  </section>
+
+  <!-- STATS BAR -->
+
+  <div class="stats-bar fade-in delay-4">
+    <div class="stat">
+      <div class="stat-num">5K+</div>
+      <div class="stat-label">Referencias</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">12</div>
+      <div class="stat-label">Años</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">8</div>
+      <div class="stat-label">Sedes</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">98%</div>
+      <div class="stat-label">Satisfacción</div>
+    </div>
+  </div>
+
+  <!-- EMPRESA -->
+
+  <section class="section" id="empresa">
+    <div class="about-grid">
+      <div>
+        <div class="section-tag">Quiénes somos</div>
+        <h2 class="section-title">PASIÓN POR<br>LAS <span class="accent">MOTOS</span></h2>
+        <div class="about-text">
+          <p>MOTOPARTES nació en 2026 con una misión clara: ofrecer las mejores partes y repuestos para motocicletas en Colombia, con precios justos y atención de primera.</p>
+          <p>Somos distribuidores autorizados de las marcas más reconocidas del mercado. Nuestro equipo de expertos asesora a cada cliente para encontrar exactamente lo que necesita.</p>
+          <p>Con 8 sedes en el país y despachos a nivel nacional, llevamos la calidad hasta tu taller o domicilio.</p>
+        </div>
+      </div>
+      <div class="about-visual">
+        <div class="feat-card">
+          <div class="feat-icon"></div>
+          <div class="feat-title">Repuestos Originales</div>
+          <div class="feat-desc">Solo trabajamos con proveedores certificados y partes 100% originales</div>
+        </div>
+        <div class="feat-card">
+          <div class="feat-icon"></div>
+          <div class="feat-title">Envío Express</div>
+          <div class="feat-desc">Despacho en 24h a todo Colombia con seguimiento en tiempo real</div>
+        </div>
+        <div class="feat-card">
+          <div class="feat-icon"></div>
+          <div class="feat-title">Garantía Total</div>
+          <div class="feat-desc">Todos los productos con garantía de 6 a 24 meses según categoría</div>
+        </div>
+        <div class="feat-card">
+          <div class="feat-icon"></div>
+          <div class="feat-title">Asesoría Experta</div>
+          <div class="feat-desc">Técnicos certificados disponibles 7 días a la semana</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRODUCTOS -->
+
+<section class="section section-dark" id="productos">
+  <div class="section-tag">Catálogo</div>
+  <h2 class="section-title">NUESTROS<br><span class="accent">PRODUCTOS</span></h2>
+  <p style="color:var(--texto); font-size:15px; margin-bottom:32px;">
+    Explora más de 5.000 referencias de partes y repuestos para tu moto.
+  </p>
+  <a href="{% url 'productos' %}" class="btn-primary" style="text-decoration:none; display:inline-block;">
+    Ver catálogo completo →
+  </a>
+</section>
+
+  <!-- SEDES -->
+
+  <section class="section" id="sedes">
+    <div class="section-tag">Ubicaciones</div>
+    <h2 class="section-title">NUESTRAS<br><span class="accent">SEDES</span></h2>
+    <div class="sedes-grid">
+      <div class="map-container">
+        <iframe
+          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d127359.04785948!2d-74.13129!3d4.6271!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8e3f9bfd2da6cb29%3A0x239d635520a33914!2sBogot%C3%A1!5e0!3m2!1ses!2sco!4v1620000000000"
+          allowfullscreen="" loading="lazy">
+        </iframe>
+      </div>
+      <div class="sedes-list">
+        {% for sede in sedes_index %}
+        <div class="sede-card {% if forloop.first %}principal{% endif %}">
+          <div class="sede-icon"></div>
+          <div>
+            {% if forloop.first %}
+            <div class="sede-principal-tag">★ Sede Principal</div>
+            {% endif %}
+            <div class="sede-name">{{ sede.nombre }}</div>
+            <div class="sede-addr">
+              {{ sede.direccion }}{% if sede.ciudad %}, {{ sede.ciudad }}{% endif %}
+              {% if sede.telefono %}<br>{{ sede.telefono }}{% endif %}
+            </div>
+          </div>
+        </div>
+        {% empty %}
+        <div style="color:var(--texto);font-size:14px;padding:20px 0;">
+          No hay sedes registradas aún.
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+
+  <footer class="footer" id="contacto">
+    <div>
+      <div class="logo-name">MOTO<span>PARTES</span></div>
+      <div class="footer-copy">© 2026 MOTOPARTES — Todos los derechos reservados</div>
+    </div>
+    <div class="footer-contact">
+        &nbsp;|&nbsp; 📞 (3006687362)
+    </div>
+  </footer>
+</main>
+
+<script src="{% static 'acceso/js/main.js' %}"></script>
+</body>
+</html>

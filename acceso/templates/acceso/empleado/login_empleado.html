@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Login Empleado — MotoPartes</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'acceso/css/login_empleado.css' %}">
+</head>
+<body>
+<div class="card">
+  <div class="logo">MOTO<span>PARTES</span></div>
+  <div class="sub">Panel Empleados</div>
+  {% for message in messages %}
+  <div class="error">{{ message }}</div>
+  {% endfor %}
+  <form method="post">
+    {% csrf_token %}
+    <label class="form-label">Usuario</label>
+    <input class="form-control" type="text" name="username" required autofocus>
+    <label class="form-label">Contraseña</label>
+    <input class="form-control" type="password" name="password" required>
+    <button type="submit" class="btn">Ingresar</button>
+  </form>
+</div>
+</body>
+</html>

@@ -1,0 +1,50 @@
+/* ── PERFIL DE USUARIO ── */
+.perfil-wrap { max-width: 680px; margin: 0 auto; padding: 32px 24px; }
+    .perfil-header { margin-bottom: 40px; }
+    .perfil-tag { font-size: 11px; letter-spacing: 3px; color: var(--naranja); text-transform: uppercase; margin-bottom: 8px; }
+    .perfil-titulo { font-family: 'Bebas Neue', sans-serif; font-size: 42px; color: #fff; line-height: 1; }
+    .perfil-titulo span { color: var(--naranja); }
+    .perfil-avatar { width: 80px; height: 80px; background: rgba(255,85,0,0.15); border: 2px solid var(--naranja); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 32px; margin-bottom: 24px; }
+    .perfil-nombre { font-family: 'Bebas Neue', sans-serif; font-size: 28px; color: #fff; margin-bottom: 4px; }
+    .perfil-rol { font-size: 11px; letter-spacing: 2px; color: var(--naranja); text-transform: uppercase; }
+
+    .perfil-card { background: var(--superficie); border: 1px solid var(--borde); border-radius: 12px; padding: 28px; margin-bottom: 20px; }
+    .perfil-card-title { font-family: 'Bebas Neue', sans-serif; font-size: 18px; color: #fff; letter-spacing: 2px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+    .perfil-card-title svg { color: var(--naranja); }
+
+    .info-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--borde); }
+    .info-row:last-child { border-bottom: none; }
+    .info-label { font-size: 12px; color: #666; text-transform: uppercase; letter-spacing: 1px; }
+    .info-value { font-size: 14px; color: #ccc; font-family: 'Barlow Condensed', sans-serif; }
+
+    .form-group { margin-bottom: 18px; }
+    .form-label { display: block; font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+    .form-input { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--borde); border-radius: 8px; padding: 12px 16px; color: #fff; font-family: 'Barlow', sans-serif; font-size: 14px; box-sizing: border-box; transition: border-color 0.2s; }
+    .form-input:focus { outline: none; border-color: var(--naranja); }
+    .form-input:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .btn-guardar { background: var(--naranja); color: #fff; border: none; padding: 12px 28px; border-radius: 8px; font-family: 'Bebas Neue', sans-serif; font-size: 16px; letter-spacing: 2px; cursor: pointer; transition: opacity 0.2s; width: 100%; margin-top: 8px; }
+    .btn-guardar:hover { opacity: 0.85; }
+
+    .msg-ok  { background: rgba(0,200,100,0.1); border: 1px solid rgba(0,200,100,0.3); color: #00c864; border-radius: 8px; padding: 12px 16px; margin-bottom: 20px; font-size: 14px; }
+    .msg-err { background: rgba(255,60,60,0.1); border: 1px solid rgba(255,60,60,0.3); color: #ff4444; border-radius: 8px; padding: 12px 16px; margin-bottom: 20px; font-size: 14px; }
+
+    .tab-bar { display: flex; gap: 8px; margin-bottom: 24px; }
+    .tab { padding: 8px 20px; border-radius: 20px; font-family: 'Barlow Condensed', sans-serif; font-size: 14px; letter-spacing: 1px; cursor: pointer; border: 1px solid var(--borde); background: transparent; color: #888; transition: all 0.2s; }
+    .tab.active, .tab:hover { background: var(--naranja); color: #fff; border-color: var(--naranja); }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+/* ── Light Theme Overrides ── */
+.perfil-titulo { color: #1a1612 !important; }
+.perfil-nombre { color: #1a1612 !important; }
+.perfil-card { background: #ffffff !important; border-color: #dddbd4 !important; }
+.perfil-card-title { color: #1a1612 !important; }
+.info-row { border-bottom-color: #eeecea !important; }
+.info-value { color: #2e2a25 !important; }
+.info-label { color: #9a948c !important; }
+.form-input { background: #f5f4f2 !important; border-color: #dddbd4 !important; color: #1a1612 !important; }
+.form-input:focus { border-color: var(--naranja, #ff5500) !important; background: #ffffff !important; }
+.msg-ok { background: rgba(0,160,70,0.08); border-color: rgba(0,160,70,0.25); color: #008040; }
+.msg-err { background: rgba(200,50,50,0.08); border-color: rgba(200,50,50,0.25); color: #cc3333; }
+.tab { background: #f0eeea; color: #7a746a; border-color: #dddbd4; }
+.tab.active, .tab:hover { background: var(--naranja, #ff5500); color: #fff; border-color: var(--naranja, #ff5500); }
