@@ -80,11 +80,11 @@ WSGI_APPLICATION = "motopartesetings.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.mysql",
-        "NAME": "motopartes",
-        "USER": "root",
-        "PASSWORD": "",
-        "HOST": "localhost",
-        "PORT": "3306",
+        "NAME": os.environ.get("MYSQLDATABASE", "motopartes"),
+        "USER": os.environ.get("MYSQLUSER", "root"),
+        "PASSWORD": os.environ.get("MYSQLPASSWORD", ""),
+        "HOST": os.environ.get("MYSQLHOST", "localhost"),
+        "PORT": os.environ.get("MYSQLPORT", "3306"),
         "OPTIONS": {
             "charset": "utf8mb4",
             "init_command": "SET sql_mode='STRICT_TRANS_TABLES'",
@@ -159,7 +159,7 @@ EMAIL_HOST_PASSWORD = "txrkpaqnmmrkiqte"
 DEFAULT_FROM_EMAIL = "Motopartes <hernadezambrano@gmail.com>"
 
 
-CELERY_BROKER_URL = "redis://localhost:6379/0"
+#CELERY_BROKER_URL = "redis://localhost:6379/0"
 CELERY_RESULT_BACKEND = "redis://localhost:6379/0"
 CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"
