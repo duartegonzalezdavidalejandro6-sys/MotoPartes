@@ -1,1 +1,1 @@
-web: gunicorn motopartesetings.wsgi --bind 0.0.0.0:$PORT
+web: gunicorn motopartesettings.wsgi
