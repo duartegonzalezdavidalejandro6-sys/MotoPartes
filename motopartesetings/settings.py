@@ -26,7 +26,7 @@ SECRET_KEY = "django-insecure-ib8-obh-s@)&vfmg+n@@r_2+3hid$rat+^8o=-v_bl67t@qtty
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS =  ['https://motopartes.up.railway.app']
 
 
 # Application definition
