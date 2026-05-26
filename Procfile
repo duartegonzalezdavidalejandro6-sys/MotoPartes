@@ -1,1 +1,1 @@
-web: gunicorn motopartesettings.wsgi
+web: gunicorn motopartesetings.wsgi
