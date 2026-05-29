@@ -165,7 +165,7 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = "hernadezambrano@gmail.com"
 EMAIL_HOST_PASSWORD = "txrkpaqnmmrkiqte"
 DEFAULT_FROM_EMAIL = "Motopartes <hernadezambrano@gmail.com>"
-
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 #CELERY_BROKER_URL = "redis://localhost:6379/0"
 CELERY_RESULT_BACKEND = "redis://localhost:6379/0"
