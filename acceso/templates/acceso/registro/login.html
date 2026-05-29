@@ -5,206 +5,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MOTOPARTES — Iniciar Sesión</title>
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600;700&family=Barlow+Condensed:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600;700&family=Barlow+Condensed:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'acceso/css/login.css' %}">
-  <style>
-    /* ── Variables ── */
-    :root {
-      --orange: #F15A22;
-      --orange-dark: #D44A15;
-      --orange-light: #FEE8DC;
-      --text-dark: #1A1A1A;
-      --text-mid: #555;
-      --text-light: #999;
-      --border: #E0E0E0;
-      --white: #fff;
-      --success: #22C55E;
-      --error: #EF4444;
-    }
-
-    /* ── Pantallas del formulario ── */
-    .form-screen { display: none; }
-    .form-screen.active { display: block; animation: fadeUp .3s ease forwards; }
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(16px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-
-    /* ── Encabezado de pantalla ── */
-    .screen-back {
-      background: none; border: none; cursor: pointer;
-      color: var(--text-mid); font-size: 13px; font-weight: 600;
-      padding: 0; display: flex; align-items: center; gap: 6px;
-      margin-bottom: 20px; font-family: 'Barlow', sans-serif;
-      transition: color .2s;
-    }
-    .screen-back:hover { color: var(--orange); }
-
-    /* ── Link olvidé contraseña ── */
-    .forgot-row {
-      display: flex; justify-content: flex-end;
-      margin-top: -8px; margin-bottom: 20px;
-    }
-    .forgot-link {
-      background: none; border: none; cursor: pointer;
-      font-size: 13px; color: var(--orange); font-weight: 600;
-      font-family: 'Barlow', sans-serif;
-      transition: opacity .2s; padding: 0;
-    }
-    .forgot-link:hover { opacity: .7; text-decoration: underline; }
-
-    /* ── Campos ── */
-    .form-group { margin-bottom: 20px; }
-    .form-label {
-      display: block; font-size: 11px; font-weight: 700;
-      letter-spacing: 1.5px; color: var(--text-mid); margin-bottom: 8px;
-    }
-    .input-wrap { position: relative; }
-    .form-input {
-      width: 100%; height: 52px; padding: 0 44px 0 16px;
-      border: 1.5px solid var(--border); border-radius: 8px;
-      font-size: 15px; font-family: 'Barlow', sans-serif;
-      color: var(--text-dark); background: var(--white);
-      outline: none; transition: border-color .2s, box-shadow .2s;
-      box-sizing: border-box;
-    }
-    .form-input:focus {
-      border-color: var(--orange);
-      box-shadow: 0 0 0 3px rgba(241,90,34,.12);
-    }
-    .form-input.input-error { border-color: var(--error); }
-
-    /* ── Botón ojo ── */
-    .toggle-pass {
-      position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
-      background: none; border: none; cursor: pointer;
-      font-size: 16px; line-height: 1; padding: 4px;
-      color: var(--text-light); transition: color .2s;
-    }
-    .toggle-pass:hover { color: var(--orange); }
-
-    /* ── Mensajes de error inline ── */
-    .inline-error {
-      font-size: 12px; color: var(--error);
-      margin-top: 5px; display: none;
-    }
-    .inline-error.show { display: block; }
-
-    /* ── Alert de error del servidor ── */
-    .form-error {
-      background: #FEE2E2; border: 1px solid #FECACA;
-      border-radius: 8px; padding: 12px 16px;
-      font-size: 13px; color: #DC2626;
-      margin-bottom: 20px;
-    }
-    .form-success {
-      background: #DCFCE7; border: 1px solid #BBF7D0;
-      border-radius: 8px; padding: 12px 16px;
-      font-size: 13px; color: #16A34A;
-      margin-bottom: 20px;
-    }
-
-    /* ── Botón principal ── */
-    .form-submit {
-      width: 100%; height: 52px;
-      background: var(--orange); color: var(--white);
-      border: none; border-radius: 8px;
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: 16px; font-weight: 700; letter-spacing: 2px;
-      cursor: pointer; transition: background .2s, transform .1s;
-      display: flex; align-items: center; justify-content: center; gap: 8px;
-    }
-    .form-submit:hover { background: var(--orange-dark); }
-    .form-submit:active { transform: scale(.98); }
-    .form-submit:disabled { opacity: .6; cursor: not-allowed; }
-
-    /* ── Botón secundario ── */
-    .btn-secondary {
-      width: 100%; height: 48px; margin-top: 12px;
-      background: transparent; color: var(--text-mid);
-      border: 1.5px solid var(--border); border-radius: 8px;
-      font-family: 'Barlow', sans-serif; font-size: 14px; font-weight: 600;
-      cursor: pointer; transition: all .2s;
-    }
-    .btn-secondary:hover { border-color: var(--orange); color: var(--orange); }
-
-    /* ── OTP ── */
-    .otp-row {
-      display: flex; gap: 10px; justify-content: center;
-      margin-bottom: 20px;
-    }
-    .otp-input {
-      width: 52px; height: 60px; border: 1.5px solid var(--border);
-      border-radius: 10px; text-align: center;
-      font-size: 24px; font-weight: 700;
-      font-family: 'Barlow Condensed', sans-serif;
-      color: var(--text-dark); outline: none;
-      transition: border-color .2s, box-shadow .2s;
-    }
-    .otp-input:focus {
-      border-color: var(--orange);
-      box-shadow: 0 0 0 3px rgba(241,90,34,.12);
-    }
-    .otp-input.filled {
-      border-color: var(--orange);
-      background: var(--orange-light);
-    }
-    .otp-hint {
-      font-size: 13px; color: var(--text-light);
-      text-align: center; margin-bottom: 20px;
-    }
-    .otp-hint strong { color: var(--text-dark); }
-    .resend-row {
-      text-align: center; font-size: 13px;
-      color: var(--text-light); margin-bottom: 20px;
-    }
-    #resend-btn {
-      background: none; border: none; cursor: pointer;
-      font-size: 13px; color: var(--orange); font-weight: 600;
-      font-family: 'Barlow', sans-serif;
-    }
-    #resend-btn:disabled { color: var(--text-light); cursor: default; }
-    #timer { font-weight: 700; color: var(--orange); }
-
-    /* ── Indicador de fortaleza ── */
-    .strength-bar { display: flex; gap: 4px; margin-top: 8px; }
-    .strength-seg {
-      flex: 1; height: 4px; border-radius: 2px;
-      background: var(--border); transition: background .3s;
-    }
-    .strength-label { font-size: 12px; color: var(--text-light); margin-top: 4px; }
-
-    /* ── Pantalla de éxito ── */
-    .success-block { text-align: center; padding: 16px 0 24px; }
-    .success-icon-wrap {
-      width: 72px; height: 72px; border-radius: 50%;
-      background: #DCFCE7; margin: 0 auto 20px;
-      display: flex; align-items: center; justify-content: center;
-      animation: popIn .4s cubic-bezier(.175,.885,.32,1.275);
-    }
-    @keyframes popIn {
-      from { transform: scale(0); opacity: 0; }
-      to   { transform: scale(1); opacity: 1; }
-    }
-    .success-block h2 {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: 36px; font-weight: 800;
-      color: var(--text-dark); margin-bottom: 8px;
-    }
-    .success-block p {
-      font-size: 14px; color: var(--text-mid);
-      max-width: 300px; margin: 0 auto 28px;
-    }
-
-    /* ── Spinner ── */
-    .spinner {
-      width: 20px; height: 20px;
-      border: 2.5px solid rgba(255,255,255,.4);
-      border-top-color: #fff; border-radius: 50%;
-      animation: spin .7s linear infinite; display: none;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-  </style>
+  <link rel="stylesheet" href="{% static 'acceso/css/login_addon.css' %}">
 </head>
 <body>
 <div class="login-page">
@@ -221,18 +24,9 @@
       <div class="brand-name">MOTO<span>PARTES</span></div>
       <p class="brand-desc">Distribuidor líder de partes y repuestos para motocicletas en Colombia.</p>
       <div class="left-stats">
-        <div>
-          <div class="left-stat-num">5K+</div>
-          <div class="left-stat-label">Referencias</div>
-        </div>
-        <div>
-          <div class="left-stat-num">8</div>
-          <div class="left-stat-label">Sedes</div>
-        </div>
-        <div>
-          <div class="left-stat-num">98%</div>
-          <div class="left-stat-label">Satisfacción</div>
-        </div>
+        <div><div class="left-stat-num">5K+</div><div class="left-stat-label">Referencias</div></div>
+        <div><div class="left-stat-num">8</div><div class="left-stat-label">Sedes</div></div>
+        <div><div class="left-stat-num">98%</div><div class="left-stat-label">Satisfacción</div></div>
       </div>
     </div>
   </div>
@@ -244,9 +38,7 @@
         <div class="form-logo">MOTO<span>PARTES</span></div>
       </div>
 
-      <!-- ════════════════════════════════════════
-           PANTALLA 1 — LOGIN
-      ════════════════════════════════════════ -->
+      <!-- ── PANTALLA 1: LOGIN ── -->
       <div class="form-screen {% if not step or step == 'login' %}active{% endif %}" id="screen-login">
         <h1 class="form-title">Bienvenido de nuevo</h1>
         <p class="form-sub">Ingresa tus credenciales para continuar</p>
@@ -257,29 +49,22 @@
           {% endfor %}
         {% endif %}
 
-        <form method="post" action="{% url 'login' %}" id="form-login">
+        <form method="post" action="{% url 'login' %}">
           {% csrf_token %}
           <div class="form-group">
-            <label class="form-label">USUARIO</label>
-            <div class="input-wrap">
-              <input class="form-input" type="text" name="username"
-                     placeholder="Usuario" autofocus required id="login-user">
-            </div>
-            <div class="inline-error" id="err-login-user">Ingresa tu usuario</div>
+            <label class="form-label">Usuario</label>
+            <input class="form-input" type="text" name="username" placeholder="Usuario" autofocus required>
           </div>
-
           <div class="form-group">
-            <label class="form-label">CONTRASEÑA</label>
+            <label class="form-label">Contraseña</label>
             <div class="input-wrap">
-              <input class="form-input" type="password" name="password"
-                     id="passwordInput" placeholder="••••••••" required>
+              <input class="form-input" type="password" name="password" id="passwordInput" placeholder="••••••••" required>
               <button type="button" class="toggle-pass" onclick="togglePw('passwordInput', this)">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
                 </svg>
               </button>
             </div>
-            <div class="inline-error" id="err-login-pass">Ingresa tu contraseña</div>
           </div>
 
           <!-- ★ ENLACE OLVIDÉ CONTRASEÑA ★ -->
@@ -289,44 +74,32 @@
             </button>
           </div>
 
-          <button type="submit" class="form-submit" id="btn-login">
+          <button type="submit" class="form-submit">
             <span id="login-label">ENTRAR AL SISTEMA →</span>
             <div class="spinner" id="login-spinner"></div>
           </button>
         </form>
-
         <div class="form-footer">
           <a href="{% url 'registro' %}">¿No tienes cuenta? Regístrate</a>
         </div>
       </div>
 
 
-      <!-- ════════════════════════════════════════
-           PANTALLA 2 — INGRESAR CORREO
-      ════════════════════════════════════════ -->
+      <!-- ── PANTALLA 2: INGRESAR CORREO ── -->
       <div class="form-screen {% if step == 'forgot' %}active{% endif %}" id="screen-forgot">
-        <button type="button" class="screen-back" onclick="gotoScreen('screen-login')">
-          ← Volver al inicio de sesión
-        </button>
+        <button type="button" class="screen-back" onclick="gotoScreen('screen-login')">← Volver al inicio de sesión</button>
         <h1 class="form-title">Recuperar acceso</h1>
-        <p class="form-sub">Ingresa tu correo y te enviaremos un código de verificación</p>
+        <p class="form-sub">Te enviaremos un código de verificación a tu correo</p>
 
-        {% if step == 'forgot' and error %}
-          <div class="form-error">{{ error }}</div>
-        {% endif %}
+        {% if step == 'forgot' and error %}<div class="form-error">{{ error }}</div>{% endif %}
 
-        <form method="post" action="{% url 'forgot_send_code' %}" id="form-forgot">
+        <form method="post" action="{% url 'forgot_send_code' %}">
           {% csrf_token %}
           <div class="form-group">
-            <label class="form-label">CORREO ELECTRÓNICO</label>
-            <div class="input-wrap">
-              <input class="form-input" type="email" name="email"
-                     placeholder="correo@ejemplo.com" required id="forgot-email"
-                     autocomplete="email">
-            </div>
-            <div class="inline-error" id="err-forgot-email">Ingresa un correo válido</div>
+            <label class="form-label">Correo electrónico</label>
+            <input class="form-input" type="email" name="email" placeholder="correo@ejemplo.com" required autocomplete="email" id="forgot-email">
+            <div class="inline-error" id="err-email">Ingresa un correo válido</div>
           </div>
-
           <button type="submit" class="form-submit" id="btn-send">
             <span id="send-label">ENVIAR CÓDIGO →</span>
             <div class="spinner" id="send-spinner"></div>
@@ -336,54 +109,33 @@
       </div>
 
 
-      <!-- ════════════════════════════════════════
-           PANTALLA 3 — INGRESAR CÓDIGO OTP
-      ════════════════════════════════════════ -->
+      <!-- ── PANTALLA 3: CÓDIGO OTP ── -->
       <div class="form-screen {% if step == 'otp' %}active{% endif %}" id="screen-otp">
-        <button type="button" class="screen-back" onclick="gotoScreen('screen-forgot')">
-          ← Cambiar correo
-        </button>
+        <button type="button" class="screen-back" onclick="gotoScreen('screen-forgot')">← Cambiar correo</button>
         <h1 class="form-title">Código enviado</h1>
-        <p class="otp-hint">
-          Ingresa el código de 6 dígitos enviado a
-          <strong>{% if otp_email %}{{ otp_email }}{% endif %}</strong>
-        </p>
+        <p class="otp-hint">Ingresa el código de 6 dígitos enviado a<br><strong>{% if otp_email %}{{ otp_email }}{% endif %}</strong></p>
 
-        {% if step == 'otp' and error %}
-          <div class="form-error">{{ error }}</div>
-        {% endif %}
-        {% if resent %}
-          <div class="form-success">✅ Código reenviado correctamente.</div>
-        {% endif %}
+        {% if step == 'otp' and error %}<div class="form-error">{{ error }}</div>{% endif %}
+        {% if resent %}<div class="form-success">✅ Código reenviado correctamente.</div>{% endif %}
 
-        <form method="post" action="{% url 'forgot_verify_otp' %}" id="form-otp">
+        <form method="post" action="{% url 'forgot_verify_otp' %}">
           {% csrf_token %}
-          <!-- Campos OTP individuales — se combinan con JS antes de enviar -->
           <div class="otp-row">
-            <input class="otp-input" type="text" maxlength="1" inputmode="numeric"
-                   pattern="[0-9]" id="d1" name="d1" autocomplete="one-time-code">
-            <input class="otp-input" type="text" maxlength="1" inputmode="numeric"
-                   pattern="[0-9]" id="d2" name="d2">
-            <input class="otp-input" type="text" maxlength="1" inputmode="numeric"
-                   pattern="[0-9]" id="d3" name="d3">
-            <input class="otp-input" type="text" maxlength="1" inputmode="numeric"
-                   pattern="[0-9]" id="d4" name="d4">
-            <input class="otp-input" type="text" maxlength="1" inputmode="numeric"
-                   pattern="[0-9]" id="d5" name="d5">
-            <input class="otp-input" type="text" maxlength="1" inputmode="numeric"
-                   pattern="[0-9]" id="d6" name="d6">
+            <input class="otp-input" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" name="d1" id="d1" autocomplete="one-time-code">
+            <input class="otp-input" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" name="d2" id="d2">
+            <input class="otp-input" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" name="d3" id="d3">
+            <input class="otp-input" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" name="d4" id="d4">
+            <input class="otp-input" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" name="d5" id="d5">
+            <input class="otp-input" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" name="d6" id="d6">
           </div>
-
           <div class="resend-row">
-            Reenviar código en <span id="timer">60s</span> &nbsp;|&nbsp;
+            Reenviar en <span id="timer">60s</span> &nbsp;|&nbsp;
             <form method="post" action="{% url 'forgot_resend_code' %}" style="display:inline">
               {% csrf_token %}
               <button type="submit" id="resend-btn" disabled>Reenviar</button>
             </form>
           </div>
-
-          <div class="inline-error show" id="err-otp" style="display:none;text-align:center;margin-bottom:16px"></div>
-
+          <div class="inline-error" id="err-otp" style="text-align:center;margin-bottom:14px"></div>
           <button type="submit" class="form-submit" id="btn-otp">
             <span id="otp-label">VERIFICAR CÓDIGO →</span>
             <div class="spinner" id="otp-spinner"></div>
@@ -392,25 +144,20 @@
       </div>
 
 
-      <!-- ════════════════════════════════════════
-           PANTALLA 4 — NUEVA CONTRASEÑA
-      ════════════════════════════════════════ -->
+      <!-- ── PANTALLA 4: NUEVA CONTRASEÑA ── -->
       <div class="form-screen {% if step == 'new_password' %}active{% endif %}" id="screen-newpass">
         <h1 class="form-title">Nueva contraseña</h1>
         <p class="form-sub">Elige una contraseña segura para tu cuenta</p>
 
-        {% if step == 'new_password' and error %}
-          <div class="form-error">{{ error }}</div>
-        {% endif %}
+        {% if step == 'new_password' and error %}<div class="form-error">{{ error }}</div>{% endif %}
 
-        <form method="post" action="{% url 'forgot_change_password' %}" id="form-newpass">
+        <form method="post" action="{% url 'forgot_change_password' %}">
           {% csrf_token %}
           <div class="form-group">
-            <label class="form-label">NUEVA CONTRASEÑA</label>
+            <label class="form-label">Nueva contraseña</label>
             <div class="input-wrap">
-              <input class="form-input" type="password" name="new_password"
-                     id="new-pass" placeholder="Mínimo 8 caracteres"
-                     autocomplete="new-password" required
+              <input class="form-input" type="password" name="new_password" id="new-pass"
+                     placeholder="Mínimo 8 caracteres" required autocomplete="new-password"
                      oninput="checkStrength(this.value)">
               <button type="button" class="toggle-pass" onclick="togglePw('new-pass', this)">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -427,13 +174,11 @@
             <div class="strength-label" id="strength-label"></div>
             <div class="inline-error" id="err-np">Mínimo 8 caracteres</div>
           </div>
-
           <div class="form-group">
-            <label class="form-label">CONFIRMAR CONTRASEÑA</label>
+            <label class="form-label">Confirmar contraseña</label>
             <div class="input-wrap">
-              <input class="form-input" type="password" name="confirm_password"
-                     id="confirm-pass" placeholder="Repite la contraseña"
-                     autocomplete="new-password" required>
+              <input class="form-input" type="password" name="confirm_password" id="confirm-pass"
+                     placeholder="Repite la contraseña" required autocomplete="new-password">
               <button type="button" class="toggle-pass" onclick="togglePw('confirm-pass', this)">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
@@ -442,9 +187,7 @@
             </div>
             <div class="inline-error" id="err-cp">Las contraseñas no coinciden</div>
           </div>
-
-          <button type="submit" class="form-submit" id="btn-change"
-                  onclick="return validateNewPass()">
+          <button type="submit" class="form-submit" id="btn-change" onclick="return validateNewPass()">
             <span id="change-label">CAMBIAR CONTRASEÑA →</span>
             <div class="spinner" id="change-spinner"></div>
           </button>
@@ -452,9 +195,7 @@
       </div>
 
 
-      <!-- ════════════════════════════════════════
-           PANTALLA 5 — ÉXITO
-      ════════════════════════════════════════ -->
+      <!-- ── PANTALLA 5: ÉXITO ── -->
       <div class="form-screen {% if step == 'done' %}active{% endif %}" id="screen-done">
         <div class="success-block">
           <div class="success-icon-wrap">
@@ -466,18 +207,17 @@
           </div>
           <h2>¡Listo!</h2>
           <p>Tu contraseña ha sido cambiada exitosamente. Ya puedes ingresar con tus nuevas credenciales.</p>
-          <a href="{% url 'login' %}" class="form-submit" style="text-decoration:none;display:flex">
+          <a href="{% url 'login' %}" class="form-submit" style="text-decoration:none;display:flex;justify-content:center;margin-top:4px">
             INICIAR SESIÓN →
           </a>
         </div>
       </div>
 
-    </div><!-- /form-wrap -->
-  </div><!-- /login-right -->
-</div><!-- /login-page -->
+    </div>
+  </div>
+</div>
 
 <script>
-// ── Navegación entre pantallas (solo para ir hacia atrás sin POST) ──
 function gotoScreen(id) {
   document.querySelectorAll('.form-screen').forEach(s => s.classList.remove('active'));
   const el = document.getElementById(id);
@@ -486,155 +226,106 @@ function gotoScreen(id) {
   requestAnimationFrame(() => { el.style.animation = ''; });
 }
 
-// ── Toggle mostrar/ocultar contraseña ──
 function togglePw(id, btn) {
   const inp = document.getElementById(id);
   const hidden = inp.type === 'password';
   inp.type = hidden ? 'text' : 'password';
   btn.innerHTML = hidden
-    ? `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94"/>
-        <path d="M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19"/>
-        <line x1="1" y1="1" x2="23" y2="23"/>
-       </svg>`
-    : `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
-       </svg>`;
+    ? `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`
+    : `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
 }
 
-// ── OTP: navegación entre dígitos ──
+// OTP inputs
 const otpInputs = document.querySelectorAll('.otp-input');
 otpInputs.forEach((inp, i) => {
-  inp.addEventListener('input', e => {
+  inp.addEventListener('input', () => {
     inp.value = inp.value.replace(/[^0-9]/g, '');
-    if (inp.value) {
-      inp.classList.add('filled');
-      if (i < otpInputs.length - 1) otpInputs[i + 1].focus();
-    } else {
-      inp.classList.remove('filled');
-    }
+    if (inp.value) { inp.classList.add('filled'); if (i < otpInputs.length - 1) otpInputs[i+1].focus(); }
+    else inp.classList.remove('filled');
   });
   inp.addEventListener('keydown', e => {
     if (e.key === 'Backspace' && !inp.value && i > 0) {
-      otpInputs[i - 1].focus();
-      otpInputs[i - 1].value = '';
-      otpInputs[i - 1].classList.remove('filled');
+      otpInputs[i-1].focus(); otpInputs[i-1].value = ''; otpInputs[i-1].classList.remove('filled');
     }
   });
-  // Pegar código completo
   inp.addEventListener('paste', e => {
     const paste = (e.clipboardData || window.clipboardData).getData('text').replace(/\D/g, '');
-    paste.split('').forEach((ch, j) => {
-      if (otpInputs[i + j]) {
-        otpInputs[i + j].value = ch;
-        otpInputs[i + j].classList.add('filled');
-      }
-    });
+    paste.split('').forEach((ch, j) => { if (otpInputs[i+j]) { otpInputs[i+j].value = ch; otpInputs[i+j].classList.add('filled'); }});
     e.preventDefault();
   });
 });
 
-// ── Timer de reenvío ──
+// Timer reenvío
 {% if step == 'otp' %}
-(function startTimer() {
+(function() {
   let s = 60;
   const timerEl = document.getElementById('timer');
-  const resendBtn = document.getElementById('resend-btn');
-  const interval = setInterval(() => {
+  const btn = document.getElementById('resend-btn');
+  const iv = setInterval(() => {
     s--;
     if (timerEl) timerEl.textContent = s + 's';
-    if (s <= 0) {
-      clearInterval(interval);
-      if (timerEl) timerEl.textContent = '';
-      if (resendBtn) resendBtn.disabled = false;
-    }
+    if (s <= 0) { clearInterval(iv); if (timerEl) timerEl.textContent = ''; if (btn) btn.disabled = false; }
   }, 1000);
 })();
 {% endif %}
 
-// ── Indicador de fortaleza de contraseña ──
+// Fortaleza contraseña
 function checkStrength(val) {
-  const segs = ['s1','s2','s3','s4'].map(id => document.getElementById(id));
-  const label = document.getElementById('strength-label');
-  const colors = ['#EF4444', '#F97316', '#EAB308', '#22C55E'];
-  const labels = ['Muy débil', 'Débil', 'Aceptable', 'Fuerte'];
+  const colors = ['#cc3333','#F97316','#EAB308','#22C55E'];
+  const labels = ['Muy débil','Débil','Aceptable','Fuerte'];
   let score = 0;
-  if (val.length >= 8)        score++;
-  if (/[A-Z]/.test(val))      score++;
-  if (/[0-9]/.test(val))      score++;
+  if (val.length >= 8) score++;
+  if (/[A-Z]/.test(val)) score++;
+  if (/[0-9]/.test(val)) score++;
   if (/[^A-Za-z0-9]/.test(val)) score++;
-  segs.forEach((s, i) => {
-    s.style.background = i < score ? colors[score - 1] : 'var(--border)';
+  ['s1','s2','s3','s4'].forEach((id, i) => {
+    const el = document.getElementById(id);
+    if (el) el.style.background = i < score ? colors[score-1] : 'var(--border)';
   });
-  if (label) {
-    label.textContent = val.length ? (labels[score - 1] || '') : '';
-    label.style.color = score ? colors[score - 1] : 'var(--text-light)';
-  }
+  const lbl = document.getElementById('strength-label');
+  if (lbl) { lbl.textContent = val.length ? (labels[score-1] || '') : ''; lbl.style.color = score ? colors[score-1] : 'var(--dim)'; }
 }
 
-// ── Validación formulario nueva contraseña ──
+// Validar nueva contraseña
 function validateNewPass() {
   const np = document.getElementById('new-pass').value;
   const cp = document.getElementById('confirm-pass').value;
+  let ok = true;
   const errNp = document.getElementById('err-np');
   const errCp = document.getElementById('err-cp');
-  let ok = true;
-  if (np.length < 8) {
-    errNp.classList.add('show'); ok = false;
-  } else {
-    errNp.classList.remove('show');
-  }
-  if (np !== cp) {
-    errCp.classList.add('show'); ok = false;
-  } else {
-    errCp.classList.remove('show');
-  }
+  if (np.length < 8) { errNp.classList.add('show'); ok = false; } else errNp.classList.remove('show');
+  if (np !== cp) { errCp.classList.add('show'); ok = false; } else errCp.classList.remove('show');
   if (ok) {
     const btn = document.getElementById('btn-change');
-    btn.disabled = true;
-    document.getElementById('change-label').style.display = 'none';
-    document.getElementById('change-spinner').style.display = 'block';
+    if (btn) { btn.disabled = true; document.getElementById('change-label').style.display = 'none'; document.getElementById('change-spinner').style.display = 'block'; }
   }
   return ok;
 }
 
-// ── Loading en formularios ──
-document.getElementById('form-forgot')?.addEventListener('submit', function(e) {
-  const email = document.getElementById('forgot-email').value.trim();
-  const err = document.getElementById('err-forgot-email');
+// Loading en envío de correo
+document.querySelector('#btn-send')?.closest('form')?.addEventListener('submit', function(e) {
+  const email = document.getElementById('forgot-email')?.value.trim();
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     e.preventDefault();
-    err.classList.add('show');
-    document.getElementById('forgot-email').classList.add('input-error');
+    document.getElementById('err-email')?.classList.add('show');
     return;
   }
-  err.classList.remove('show');
+  document.getElementById('err-email')?.classList.remove('show');
   const btn = document.getElementById('btn-send');
-  btn.disabled = true;
-  document.getElementById('send-label').style.display = 'none';
-  document.getElementById('send-spinner').style.display = 'block';
+  if (btn) { btn.disabled = true; document.getElementById('send-label').style.display = 'none'; document.getElementById('send-spinner').style.display = 'block'; }
 });
 
-document.getElementById('form-otp')?.addEventListener('submit', function(e) {
-  const code = Array.from(otpInputs).map(i => i.value).join('');
+// Validar OTP antes de enviar
+document.querySelector('#btn-otp')?.closest('form')?.addEventListener('submit', function(e) {
+  const code = Array.from(document.querySelectorAll('.otp-input')).map(i => i.value).join('');
   if (code.length < 6) {
     e.preventDefault();
     const err = document.getElementById('err-otp');
-    err.textContent = 'Ingresa los 6 dígitos del código';
-    err.style.display = 'block';
+    if (err) { err.textContent = 'Ingresa los 6 dígitos del código'; err.classList.add('show'); }
     return;
   }
   const btn = document.getElementById('btn-otp');
-  btn.disabled = true;
-  document.getElementById('otp-label').style.display = 'none';
-  document.getElementById('otp-spinner').style.display = 'block';
-});
-
-document.getElementById('form-login')?.addEventListener('submit', function() {
-  const btn = document.getElementById('btn-login');
-  btn.disabled = true;
-  document.getElementById('login-label').style.display = 'none';
-  document.getElementById('login-spinner').style.display = 'block';
+  if (btn) { btn.disabled = true; document.getElementById('otp-label').style.display = 'none'; document.getElementById('otp-spinner').style.display = 'block'; }
 });
 </script>
 </body>
