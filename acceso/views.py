@@ -2501,3 +2501,221 @@ def reporte_ventas_pdf(request):
     response = HttpResponse(buffer.read(), content_type="application/pdf")
     response["Content-Disposition"] = 'attachment; filename="reporte_ventas.pdf"'
     return response
+    import random
+import string
+
+from django.contrib.auth.models import User
+from django.contrib.auth.hashers import make_password
+from django.core.mail import send_mail
+from django.shortcuts import redirect, render
+from django.utils import timezone
+from django.contrib import messages
+
+
+# ── PASO 1: Solicitar correo ──────────────────────────────────────────────────
+def forgot_password(request):
+    """Muestra el formulario donde el usuario ingresa su correo."""
+    if request.user.is_authenticated:
+        return redirect("index")
+    return render(request, "acceso/registro/login.html", {"step": "forgot"})
+
+
+# ── PASO 2: Enviar código OTP ─────────────────────────────────────────────────
+def forgot_send_code(request):
+    """Recibe el correo, genera el OTP y lo envía por email."""
+    if request.method != "POST":
+        return redirect("forgot_password")
+
+    email = request.POST.get("email", "").strip().lower()
+
+    # Buscar el usuario por correo en el User de Django
+    try:
+        user = User.objects.get(email__iexact=email)
+    except User.DoesNotExist:
+        # Por seguridad, no revelamos si el correo existe o no
+        # Pero sí guardamos en sesión para continuar el flujo
+        pass
+
+    # Generar código de 6 dígitos
+    code = "".join(random.choices(string.digits, k=6))
+
+    # Guardar en sesión: código, correo y timestamp
+    request.session["otp_code"] = code
+    request.session["otp_email"] = email
+    request.session["otp_created_at"] = timezone.now().isoformat()
+    request.session["otp_verified"] = False
+
+    # Enviar el correo (si el usuario existe)
+    try:
+        user = User.objects.get(email__iexact=email)
+        send_mail(
+            subject="🔐 Código de verificación — Motopartes",
+            message=f"Tu código de verificación es: {code}\nEste código expira en 10 minutos.",
+            from_email=None,
+            recipient_list=[email],
+            html_message=f"""
+            <div style="font-family:Arial,sans-serif;max-width:480px;margin:auto;padding:32px;border:1px solid #eee;border-radius:8px">
+              <div style="text-align:center;margin-bottom:24px">
+                <span style="font-size:28px;font-weight:900;letter-spacing:1px">
+                  <span style="color:#F15A22">MOTO</span>PARTES
+                </span>
+              </div>
+              <h2 style="color:#1A1A1A;margin-bottom:8px">Recuperación de contraseña</h2>
+              <p style="color:#555;margin-bottom:24px">Usa el siguiente código para restablecer tu contraseña. Expira en <strong>10 minutos</strong>.</p>
+              <div style="background:#FEE8DC;border-radius:8px;padding:24px;text-align:center;margin-bottom:24px">
+                <span style="font-size:40px;font-weight:900;letter-spacing:12px;color:#F15A22">{code}</span>
+              </div>
+              <p style="color:#999;font-size:12px">Si no solicitaste este código, ignora este mensaje.</p>
+            </div>
+            """,
+            fail_silently=True,
+        )
+    except User.DoesNotExist:
+        pass  # No revelar si el correo existe
+
+    return render(request, "acceso/registro/login.html", {
+        "step": "otp",
+        "otp_email": email,
+    })
+
+
+# ── PASO 3: Verificar OTP ─────────────────────────────────────────────────────
+def forgot_verify_otp(request):
+    """Verifica que el código ingresado sea correcto y no haya expirado."""
+    if request.method != "POST":
+        return redirect("forgot_password")
+
+    ingresado = "".join([
+        request.POST.get(f"d{i}", "") for i in range(1, 7)
+    ]).strip()
+
+    stored_code = request.session.get("otp_code")
+    stored_email = request.session.get("otp_email")
+    created_at_str = request.session.get("otp_created_at")
+
+    # Verificar que el código no haya expirado (10 minutos)
+    if created_at_str:
+        from datetime import datetime, timezone as dt_tz
+        created_at = datetime.fromisoformat(created_at_str)
+        if timezone.now() > created_at.replace(tzinfo=dt_tz.utc) + timezone.timedelta(minutes=10):
+            messages.error(request, "El código ha expirado. Solicita uno nuevo.")
+            return render(request, "acceso/registro/login.html", {
+                "step": "forgot",
+                "error": "El código expiró. Solicita uno nuevo.",
+            })
+
+    if ingresado != stored_code:
+        return render(request, "acceso/registro/login.html", {
+            "step": "otp",
+            "otp_email": stored_email,
+            "error": "Código incorrecto. Inténtalo de nuevo.",
+        })
+
+    # Código correcto — marcar como verificado
+    request.session["otp_verified"] = True
+
+    return render(request, "acceso/registro/login.html", {
+        "step": "new_password",
+    })
+
+
+# ── PASO 4: Cambiar contraseña ────────────────────────────────────────────────
+def forgot_change_password(request):
+    """Cambia la contraseña del usuario una vez verificado el OTP."""
+    if request.method != "POST":
+        return redirect("forgot_password")
+
+    # Seguridad: solo si el OTP fue verificado en esta sesión
+    if not request.session.get("otp_verified"):
+        messages.error(request, "Acceso no autorizado.")
+        return redirect("forgot_password")
+
+    email = request.session.get("otp_email")
+    nueva = request.POST.get("new_password", "")
+    confirmar = request.POST.get("confirm_password", "")
+
+    if len(nueva) < 8:
+        return render(request, "acceso/registro/login.html", {
+            "step": "new_password",
+            "error": "La contraseña debe tener al menos 8 caracteres.",
+        })
+
+    if nueva != confirmar:
+        return render(request, "acceso/registro/login.html", {
+            "step": "new_password",
+            "error": "Las contraseñas no coinciden.",
+        })
+
+    try:
+        user = User.objects.get(email__iexact=email)
+        user.set_password(nueva)
+        user.save()
+
+        # También actualizar claveUsuario en el modelo Usuarios si existe
+        try:
+            from .models import Usuarios
+            usuario_extra = Usuarios.objects.get(correoUsuario__iexact=email)
+            usuario_extra.claveUsuario = make_password(nueva)
+            usuario_extra.save()
+        except Exception:
+            pass
+
+    except User.DoesNotExist:
+        pass  # Silencioso por seguridad
+
+    # Limpiar sesión OTP
+    for key in ["otp_code", "otp_email", "otp_created_at", "otp_verified"]:
+        request.session.pop(key, None)
+
+    return render(request, "acceso/registro/login.html", {
+        "step": "done",
+    })
+
+
+# ── PASO 5: Reenviar código OTP ───────────────────────────────────────────────
+def forgot_resend_code(request):
+    """Reenvía un nuevo código OTP al mismo correo."""
+    if request.method != "POST":
+        return redirect("forgot_password")
+
+    email = request.session.get("otp_email")
+    if not email:
+        return redirect("forgot_password")
+
+    # Reutilizar la lógica de envío
+    code = "".join(random.choices(string.digits, k=6))
+    request.session["otp_code"] = code
+    request.session["otp_created_at"] = timezone.now().isoformat()
+    request.session["otp_verified"] = False
+
+    try:
+        user = User.objects.get(email__iexact=email)
+        send_mail(
+            subject="🔐 Nuevo código de verificación — Motopartes",
+            message=f"Tu nuevo código es: {code}",
+            from_email=None,
+            recipient_list=[email],
+            html_message=f"""
+            <div style="font-family:Arial,sans-serif;max-width:480px;margin:auto;padding:32px;border:1px solid #eee;border-radius:8px">
+              <div style="text-align:center;margin-bottom:24px">
+                <span style="font-size:28px;font-weight:900;letter-spacing:1px">
+                  <span style="color:#F15A22">MOTO</span>PARTES
+                </span>
+              </div>
+              <h2 style="color:#1A1A1A">Nuevo código de verificación</h2>
+              <div style="background:#FEE8DC;border-radius:8px;padding:24px;text-align:center;margin:24px 0">
+                <span style="font-size:40px;font-weight:900;letter-spacing:12px;color:#F15A22">{code}</span>
+              </div>
+              <p style="color:#999;font-size:12px">Expira en 10 minutos.</p>
+            </div>
+            """,
+            fail_silently=True,
+        )
+    except User.DoesNotExist:
+        pass
+
+    return render(request, "acceso/registro/login.html", {
+        "step": "otp",
+        "otp_email": email,
+        "resent": True,
+    })
