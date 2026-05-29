@@ -15,6 +15,11 @@ urlpatterns = [
         views.editar_producto,
         name="editar_producto",
     ),
+    path("recuperar/", views.forgot_password, name="forgot_password"),
+    path("recuperar/enviar/", views.forgot_send_code, name="forgot_send_code"),
+    path("recuperar/verificar/", views.forgot_verify_otp, name="forgot_verify_otp"),
+    path("recuperar/nueva-clave/", views.forgot_change_password, name="forgot_change_password"),
+    path("recuperar/reenviar/", views.forgot_resend_code, name="forgot_resend_code"),
     path(
         "productos/<int:pk>/eliminar/",
         views.eliminar_producto,
