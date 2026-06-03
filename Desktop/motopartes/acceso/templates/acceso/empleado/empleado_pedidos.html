@@ -1,70 +1,283 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pedidos — Panel Empleado MotoPartes</title>
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{% static 'acceso/css/panel_empleado.css' %}">
-  <link rel="stylesheet" href="{% static 'acceso/css/empleado_pedidos.css' %}">
-</head>
-<body>
+{% extends 'acceso/empleado/base_empleado.html' %}
+{% block title %}Pedidos{% endblock %}
+{% block nav_pedidos %}activo{% endblock %}
+{% block topbar_titulo %}Gestión de Pedidos{% endblock %}
 
-<div class="topbar">
-  <div class="topbar-logo">MOTO<span>PARTES</span>
-    <small style="font-family:'Barlow',sans-serif;font-size:0.65rem;font-weight:600;text-transform:uppercase;letter-spacing:2px;color:var(--dim);margin-left:8px;">Panel Empleado</small>
+{% block extra_css %}
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
+
+  .pedidos-wrap { font-family: 'DM Sans', sans-serif; }
+
+  /* ── Contador rápido por estado ── */
+  .estado-tabs {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+  }
+  .estado-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    border: 1.5px solid transparent;
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .estado-tab.todos    { background:#f5f5f5; color:#555; border-color:#e0e0e0; }
+  .estado-tab.verde    { background:#dcfce7; color:#166534; border-color:#bbf7d0; }
+  .estado-tab.rojo     { background:#fee2e2; color:#991b1b; border-color:#fecaca; }
+  .estado-tab.amarillo { background:#fef9c3; color:#854d0e; border-color:#fde68a; }
+  .estado-tab.azul     { background:#dbeafe; color:#1e40af; border-color:#bfdbfe; }
+  .estado-tab.activo   { box-shadow: 0 0 0 2px #e85d04; border-color: #e85d04; }
+  .estado-tab-count {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    opacity: .8;
+  }
+
+  /* ── Buscador ── */
+  .filtro-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+    background: #fff;
+    border: 1px solid #e8e8e8;
+    border-radius: 10px;
+    padding: 12px 16px;
+  }
+  .search-box {
+    display: flex;
+    align-items: center;
+    background: #f5f5f5;
+    border: 1px solid #e8e8e8;
+    border-radius: 6px;
+    padding: 0 12px;
+    flex: 1;
+    min-width: 220px;
+    height: 38px;
+  }
+  .search-box input {
+    border: none;
+    outline: none;
+    font-size: 13px;
+    width: 100%;
+    background: transparent;
+    color: #333;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .filtro-select {
+    height: 38px;
+    padding: 0 12px;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    font-size: 13px;
+    background: #fafafa;
+    color: #333;
+    font-family: 'DM Sans', sans-serif;
+    min-width: 150px;
+  }
+  .btn-filtrar {
+    height: 38px;
+    padding: 0 20px;
+    background: #e85d04;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: .5px;
+    text-transform: uppercase;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .btn-pdf {
+    height: 38px;
+    padding: 0 16px;
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #555;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .btn-limpiar {
+    height: 38px;
+    padding: 0 14px;
+    background: #f5f5f5;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    font-size: 12px;
+    color: #888;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  /* ── Tabla ── */
+  .pedidos-tabla-wrap {
+    background: #fff;
+    border: 1px solid #efefef;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .pedidos-tabla-info {
+    padding: 12px 20px;
+    font-size: 12px;
+    color: #aaa;
+    border-bottom: 1px solid #f5f5f5;
+  }
+  .ptabla {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+  }
+  .ptabla thead th {
+    padding: 10px 16px;
+    background: #fafafa;
+    font-size: 10px;
+    font-weight: 700;
+    color: #bbb;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    text-align: left;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  .ptabla tbody td {
+    padding: 12px 16px;
+    border-bottom: 1px solid #f8f8f8;
+    vertical-align: middle;
+  }
+  .ptabla tbody tr:last-child td { border-bottom: none; }
+  .ptabla tbody tr:hover { background: #fafafa; }
+
+  .id-cell {
+    font-family: 'DM Mono', monospace;
+    font-weight: 600;
+    color: #e85d04;
+    font-size: 13px;
+  }
+  .cliente-nombre { font-weight: 600; color: #1a1a1a; }
+  .cliente-email  { font-size: 11px; color: #bbb; margin-top: 2px; }
+  .total-cell {
+    font-family: 'DM Mono', monospace;
+    font-weight: 600;
+    color: #e85d04;
+  }
+  .fecha-cell { font-size: 11px; color: #bbb; font-family: 'DM Mono', monospace; }
+
+  .badge-p {
+    padding: 3px 8px;
+    border-radius: 5px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    display: inline-block;
+  }
+  .btn-ver {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 5px 12px;
+    background: #1a1a1a;
+    color: #fff;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background .15s;
+  }
+  .btn-ver:hover { background: #e85d04; }
+
+  .tabla-vacia {
+    text-align: center;
+    padding: 40px;
+    color: #ccc;
+    font-size: 13px;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="pedidos-wrap">
+
+  {# ── Tabs rápidos por estado ── #}
+  <div class="estado-tabs">
+    <a href="{% url 'empleado_pedidos' %}{% if q %}?q={{ q }}{% endif %}"
+       class="estado-tab todos {% if not estado_actual %}activo{% endif %}">
+      Todos <span class="estado-tab-count">{{ conteos.total|default:0 }}</span>
+    </a>
+    <a href="?estado=Procesado{% if q %}&q={{ q }}{% endif %}"
+       class="estado-tab amarillo {% if estado_actual == 'Procesado' %}activo{% endif %}">
+      ⏳ Procesado <span class="estado-tab-count">{{ conteos.procesado|default:0 }}</span>
+    </a>
+    <a href="?estado=Entregado{% if q %}&q={{ q }}{% endif %}"
+       class="estado-tab verde {% if estado_actual == 'Entregado' %}activo{% endif %}">
+      ✓ Entregado <span class="estado-tab-count">{{ conteos.entregado|default:0 }}</span>
+    </a>
+    <a href="?estado=Cancelado{% if q %}&q={{ q }}{% endif %}"
+       class="estado-tab rojo {% if estado_actual == 'Cancelado' %}activo{% endif %}">
+      ✕ Cancelado <span class="estado-tab-count">{{ conteos.cancelado|default:0 }}</span>
+    </a>
   </div>
-  <div class="topbar-right">
-    Hola, <strong style="color:var(--naranja);">{{ request.user.get_full_name|default:request.user.username }}</strong>
-    <div class="divider"></div>
-    <a href="{% url 'panel_empleado' %}"     class="btn btn-dark btn-sm">Inicio</a>
-    <a href="{% url 'empleado_pedidos' %}"   class="btn btn-dark btn-sm">Pedidos</a>
-    <a href="{% url 'empleado_categorias' %}" class="btn btn-dark btn-sm">Categorías</a>
-    <a href="{% url 'index' %}"              class="btn btn-salir btn-sm">← Tienda</a>
-    <a href="{% url 'logout' %}"             class="btn btn-dark btn-sm">Salir</a>
-  </div>
-</div>
 
-{% if messages %}
-<div class="mensajes">
-  {% for message in messages %}<div class="mensaje {{ message.tags }}">{{ message }}</div>{% endfor %}
-</div>
-{% endif %}
+  {# ── Buscador + filtros ── #}
+  <form method="GET" class="filtro-bar">
+    <div class="search-box">
+      <svg style="width:14px;height:14px;color:#bbb;margin-right:8px;flex-shrink:0;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+      <input type="text" name="q" value="{{ q }}" placeholder="Buscar cliente, ciudad...">
+    </div>
 
-<div class="content">
-  <div class="seccion-header">
-    <span class="seccion-titulo">📋 Pedidos</span>
-  </div>
+    <input type="hidden" name="estado" value="{{ estado_actual }}">
 
-  <!-- Filtros -->
-  <form method="GET" style="margin-bottom:16px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
-    <select name="estado" style="padding:8px 10px;background:var(--bg3);border:1px solid var(--border);color:var(--texto);border-radius:3px;font-family:'Barlow',sans-serif;font-size:0.88rem;outline:none;">
-      <option value="">Todos los estados</option>
-      {% for e in estados %}
-      <option value="{{ e }}" {% if e == estado_actual %}selected{% endif %}>{{ e }}</option>
-      {% endfor %}
-    </select>
-    <select name="sede" style="padding:8px 10px;background:var(--bg3);border:1px solid var(--border);color:var(--texto);border-radius:3px;font-family:'Barlow',sans-serif;font-size:0.88rem;outline:none;">
+    <select name="sede" class="filtro-select">
       <option value="">Todas las sedes</option>
       {% for s in sedes %}
       <option value="{{ s.idSede }}" {% if s.idSede|stringformat:"s" == sede_actual %}selected{% endif %}>{{ s.nombre }}</option>
       {% endfor %}
     </select>
-    <button type="submit" class="btn btn-dark btn-sm">Filtrar</button>
-    {% if estado_actual or sede_actual %}
-    <a href="{% url 'empleado_pedidos' %}" class="btn btn-dark btn-sm">✕ Limpiar</a>
+
+    <button type="submit" class="btn-filtrar">Buscar</button>
+
+    <a href="{% url 'empleado_reporte_pedidos_pdf' %}{% if q or estado_actual or sede_actual %}?q={{ q }}&estado={{ estado_actual }}&sede={{ sede_actual }}{% endif %}"
+       class="btn-pdf">
+      <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      PDF
+    </a>
+
+    {% if q or sede_actual %}
+    <a href="{% url 'empleado_pedidos' %}{% if estado_actual %}?estado={{ estado_actual }}{% endif %}" class="btn-limpiar">✕ Limpiar</a>
     {% endif %}
   </form>
 
-  <div class="tabla-wrap">
-    <table class="tabla">
+  {# ── Tabla ── #}
+  <div class="pedidos-tabla-wrap">
+    <div class="pedidos-tabla-info">
+      Mostrando <strong>{{ pedidos|length }}</strong> pedido(s)
+      {% if estado_actual %}— estado: <strong>{{ estado_actual }}</strong>{% endif %}
+    </div>
+    <table class="ptabla">
       <thead>
         <tr>
           <th>#</th>
           <th>Cliente</th>
           <th>Sede</th>
-          <th>Método pago</th>
+          <th>Método</th>
           <th>Total</th>
           <th>Fecha</th>
           <th>Estado</th>
@@ -74,34 +287,33 @@
       <tbody>
         {% for pedido in pedidos %}
         <tr>
-          <td style="color:var(--naranja);font-weight:700;">#{{ pedido.idPedido }}</td>
+          <td class="id-cell">#{{ pedido.idPedido }}</td>
           <td>
-            <strong>{{ pedido.idUsuario.nombreUsuario }} {{ pedido.idUsuario.apellidosUsuario|default:'' }}</strong>
-            <div style="font-size:11px;color:var(--dim);">{{ pedido.idUsuario.correoUsuario|default:'—' }}</div>
+            <div class="cliente-nombre">{{ pedido.idUsuario.nombreUsuario }} {{ pedido.idUsuario.apellidosUsuario|default:'' }}</div>
+            <div class="cliente-email">{{ pedido.idUsuario.correoUsuario|default:'—' }}</div>
           </td>
-          <td style="color:var(--dim);">{{ pedido.sede.nombre|default:'—' }}</td>
-          <td>{{ pedido.metodoPago }}</td>
-          <td style="color:var(--naranja);font-weight:700;">${{ pedido.totalPedido|floatformat:0 }}</td>
-          <td style="font-size:11px;color:var(--dim);">{{ pedido.fechaPedido|date:"d/m/Y H:i" }}</td>
+          <td style="color:#888;font-size:12px;">{{ pedido.sede.nombre|default:'—' }}</td>
+          <td style="color:#666;">{{ pedido.metodoPago }}</td>
+          <td class="total-cell">${{ pedido.totalPedido|floatformat:0 }}</td>
+          <td class="fecha-cell">{{ pedido.fechaPedido|date:"d/m/Y H:i" }}</td>
           <td>
-            <span class="badge
-              {% if pedido.estadoPedido == 'Entregado' %}badge-verde
-              {% elif pedido.estadoPedido == 'Cancelado' %}badge-rojo
-              {% elif pedido.estadoPedido == 'Procesado' %}badge-azul
-              {% else %}badge-amarillo{% endif %}">
+            <span class="badge-p"
+              style="background:{% if pedido.estadoPedido == 'Entregado' %}#dcfce7;color:#166534{% elif pedido.estadoPedido == 'Cancelado' %}#fee2e2;color:#991b1b{% elif pedido.estadoPedido == 'Procesado' %}#fef9c3;color:#854d0e{% else %}#dbeafe;color:#1e40af{% endif %};">
               {{ pedido.estadoPedido }}
             </span>
           </td>
           <td>
-            <a href="{% url 'empleado_pedido_detalle' pedido.idPedido %}" class="btn btn-dark btn-sm">Ver →</a>
+            <a href="{% url 'empleado_pedido_detalle' pedido.idPedido %}" class="btn-ver">
+              Ver →
+            </a>
           </td>
         </tr>
         {% empty %}
-        <tr><td colspan="8" class="tabla-vacia">No hay pedidos registrados.</td></tr>
+        <tr><td colspan="8" class="tabla-vacia">No hay pedidos con los filtros aplicados.</td></tr>
         {% endfor %}
       </tbody>
     </table>
   </div>
+
 </div>
-</body>
-</html>
+{% endblock %}

@@ -1,27 +1,22 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <title>Confirmar Eliminación — MotoPartes</title>
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{% static 'acceso/css/panel_empleado.css' %}">
-</head>
-<body>
-<div class="confirm-wrap">
-  <div class="confirm-card">
-    <div class="confirm-icon">⚠️</div>
-    <div class="confirm-titulo">¿Confirmar eliminación?</div>
-    <p class="confirm-desc">
+{% extends 'acceso/empleado/base_empleado.html' %}
+{% block title %}Confirmar Eliminación{% endblock %}
+{% block topbar_titulo %}Confirmar Eliminación{% endblock %}
+
+{% block content %}
+<div style="max-width:500px;margin:60px auto;">
+  <div class="tabla-wrap" style="padding:40px;text-align:center;">
+    <div style="font-size:48px;margin-bottom:16px;">⚠️</div>
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;margin-bottom:12px;color:#1a1612;">¿Confirmar eliminación?</div>
+    <p style="color:var(--dim);font-size:14px;margin-bottom:28px;">
       {% if producto %}
-        ¿Estás seguro de eliminar el producto <strong>{{ producto.nombreProducto }}</strong>?
+        ¿Estás seguro de eliminar el producto <strong style="color:#1a1612;">{{ producto.nombreProducto }}</strong>?
       {% elif categoria %}
-        ¿Estás seguro de eliminar la categoría <strong>{{ categoria.nombreCategoria }}</strong>?
+        ¿Estás seguro de eliminar la categoría <strong style="color:#1a1612;">{{ categoria.nombreCategoria }}</strong>?
       {% else %}
         ¿Estás seguro? Esta acción no se puede deshacer.
       {% endif %}
     </p>
-    <div class="confirm-actions">
+    <div style="display:flex;gap:12px;justify-content:center;">
       <form method="post">
         {% csrf_token %}
         <button type="submit" class="btn btn-danger">Sí, eliminar</button>
@@ -30,5 +25,4 @@
     </div>
   </div>
 </div>
-</body>
-</html>
+{% endblock %}

@@ -244,3 +244,191 @@ class CarritoItem(models.Model):
 
     def __str__(self):
         return f"{self.cantidad}x {self.idProducto.nombreProducto}"
+
+# ── 8. VENTAS PRESENCIALES ──
+
+class Venta(models.Model):
+    ESTADO_CHOICES = [
+        ("completada", "Completada"),
+        ("anulada", "Anulada"),
+        ("pendiente", "Pendiente"),
+    ]
+
+    METODO_PAGO_CHOICES = [
+        ("efectivo", "Efectivo"),
+        ("tarjeta_debito", "Tarjeta Débito"),
+        ("tarjeta_credito", "Tarjeta Crédito"),
+        ("transferencia", "Transferencia"),
+        ("nequi", "Nequi"),
+        ("daviplata", "Daviplata"),
+    ]
+
+    idVenta        = models.AutoField(primary_key=True)
+    fechaVenta     = models.DateTimeField(auto_now_add=True)
+    estadoVenta    = models.CharField(max_length=20, choices=ESTADO_CHOICES, default="completada")
+    metodoPago     = models.CharField(max_length=20, choices=METODO_PAGO_CHOICES)
+    subtotal       = models.DecimalField(max_digits=14, decimal_places=2, default=0)
+    descuento      = models.DecimalField(max_digits=14, decimal_places=2, default=0)
+    iva            = models.DecimalField(max_digits=14, decimal_places=2, default=0)
+    total          = models.DecimalField(max_digits=14, decimal_places=2, default=0)
+    observaciones  = models.TextField(null=True, blank=True)
+
+    cliente  = models.ForeignKey(Usuarios,  on_delete=models.PROTECT, db_column="idCliente",  related_name="ventas_presenciales")
+    empleado = models.ForeignKey(Empleado,  on_delete=models.PROTECT, db_column="idEmpleado", related_name="ventas_realizadas")
+    sede     = models.ForeignKey(Sede,      on_delete=models.PROTECT, db_column="idSede",     related_name="ventas_sede")
+
+    class Meta:
+        db_table = "Venta"
+
+    def __str__(self):
+        return f"Venta #{self.idVenta} — {self.cliente} — {self.fechaVenta.strftime('%d/%m/%Y')}"
+
+    def calcular_totales(self):
+        from decimal import Decimal
+        self.subtotal = sum(d.subtotal for d in self.detalles.all()) - self.descuento
+        self.iva      = (self.subtotal * Decimal("0.19")).quantize(Decimal("0.01"))
+        self.total    = self.subtotal + self.iva
+        self.save()
+
+
+class DetalleVenta(models.Model):
+    idDetalle      = models.AutoField(primary_key=True)
+    cantidad       = models.PositiveIntegerField()
+    precioUnitario = models.DecimalField(max_digits=14, decimal_places=2)
+    descuentoLinea = models.DecimalField(max_digits=14, decimal_places=2, default=0)
+
+    venta    = models.ForeignKey(Venta,    on_delete=models.CASCADE,  db_column="idVenta",    related_name="detalles")
+    producto = models.ForeignKey(Producto, on_delete=models.PROTECT,  db_column="idProducto", related_name="detalles_venta")
+
+    class Meta:
+        db_table = "DetalleVenta"
+
+    @property
+    def subtotal(self):
+        return (self.precioUnitario * self.cantidad) - self.descuentoLinea
+
+    def __str__(self):
+        return f"{self.cantidad}x {self.producto.nombreProducto} — Venta #{self.venta.idVenta}"
+
+
+class NotaCreditoVenta(models.Model):
+    MOTIVO_CHOICES = [
+        ("devolucion",  "Devolución de producto"),
+        ("error_cobro", "Error en cobro"),
+        ("anulacion",   "Anulación total"),
+    ]
+
+    idNota        = models.AutoField(primary_key=True)
+    fechaNota     = models.DateTimeField(auto_now_add=True)
+    motivo        = models.CharField(max_length=20, choices=MOTIVO_CHOICES)
+    descripcion   = models.TextField(null=True, blank=True)
+    montoDevuelto = models.DecimalField(max_digits=14, decimal_places=2)
+
+    venta    = models.OneToOneField(Venta,    on_delete=models.CASCADE,  db_column="idVenta",    related_name="nota_credito")
+    empleado = models.ForeignKey(Empleado,   on_delete=models.PROTECT,  db_column="idEmpleado", related_name="notas_credito")
+
+    class Meta:
+        db_table = "NotaCreditoVenta"
+
+    def __str__(self):
+        return f"Nota #{self.idNota} — Venta #{self.venta.idVenta}"
+
+
+# ── 9. REPORTES UNIFICADOS (sin tabla extra en BD) ──
+
+class ResumenVenta:
+    """
+    Clase utilitaria (NO es un modelo de BD).
+    Unifica Pedido (virtual) y Venta (presencial) para reportes.
+    Úsala en tus vistas o en el admin para mostrar estadísticas globales.
+    """
+
+    @staticmethod
+    def totales_por_periodo(fecha_inicio, fecha_fin):
+        from django.db.models import Sum, Count
+        from decimal import Decimal
+
+        ventas_presenciales = Venta.objects.filter(
+            fechaVenta__range=(fecha_inicio, fecha_fin),
+            estadoVenta="completada"
+        ).aggregate(
+            total=Sum("total"),
+            cantidad=Count("idVenta")
+        )
+
+        ventas_virtuales = Pedido.objects.filter(
+            fechaPedido__range=(fecha_inicio, fecha_fin),
+            estadoPedido="Procesado"
+        ).aggregate(
+            total=Sum("totalPedido"),
+            cantidad=Count("idPedido")
+        )
+
+        total_presencial = ventas_presenciales["total"] or Decimal("0")
+        total_virtual    = ventas_virtuales["total"]    or Decimal("0")
+
+        return {
+            "presencial": {
+                "total":    total_presencial,
+                "cantidad": ventas_presenciales["cantidad"] or 0,
+            },
+            "virtual": {
+                "total":    total_virtual,
+                "cantidad": ventas_virtuales["cantidad"] or 0,
+            },
+            "gran_total": total_presencial + total_virtual,
+        }
+
+    @staticmethod
+    def productos_mas_vendidos(fecha_inicio, fecha_fin, limite=10):
+        from django.db.models import Sum, F
+
+        # Presenciales
+        presencial = (
+            DetalleVenta.objects
+            .filter(venta__fechaVenta__range=(fecha_inicio, fecha_fin),
+                    venta__estadoVenta="completada")
+            .values(nombre=F("producto__nombreProducto"))
+            .annotate(unidades=Sum("cantidad"))
+        )
+
+        # Virtuales
+        virtual = (
+            DetallePedido.objects
+            .filter(idPedido__fechaPedido__range=(fecha_inicio, fecha_fin),
+                    idPedido__estadoPedido="Procesado")
+            .values(nombre=F("idProducto__nombreProducto"))
+            .annotate(unidades=Sum("cantidad"))
+        )
+
+        # Combinar y ordenar
+        combinado = {}
+        for item in list(presencial) + list(virtual):
+            combinado[item["nombre"]] = combinado.get(item["nombre"], 0) + item["unidades"]
+
+        return sorted(combinado.items(), key=lambda x: x[1], reverse=True)[:limite]
+    
+    # ── Agrega esto en acceso/models.py ──────────────────────────────────────────
+import uuid
+from django.utils import timezone
+from datetime import timedelta
+ 
+class PasswordResetToken(models.Model):
+    """Token de un solo uso para recuperar contraseña."""
+    usuario = models.ForeignKey('Usuarios', on_delete=models.CASCADE,
+                                  related_name='reset_tokens')
+    token     = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
+    creado_en = models.DateTimeField(auto_now_add=True)
+    usado     = models.BooleanField(default=False)
+ 
+    def es_valido(self):
+        """El token expira en 1 hora."""
+        return not self.usado and (timezone.now() - self.creado_en) < timedelta(hours=1)
+ 
+    def __str__(self):
+        return f"Token de {self.usuario} — {'usado' if self.usado else 'activo'}"
+ 
+    class Meta:
+        verbose_name = "Token de recuperación"
+        verbose_name_plural = "Tokens de recuperación"
+ 

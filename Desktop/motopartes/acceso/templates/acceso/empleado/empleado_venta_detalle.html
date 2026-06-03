@@ -1,0 +1,144 @@
+{% extends 'acceso/empleado/base_empleado.html' %}
+{% block title %}Venta #{{ pedido.idPedido }}{% endblock %}
+{% block nav_ventas %}activo{% endblock %}
+{% block topbar_titulo %}Detalle de Venta #{{ pedido.idPedido }}{% endblock %}
+
+{% block content %}
+
+<div style="margin-bottom:16px;">
+  <a href="{% url 'empleado_ventas' %}"
+     style="color:#e85d04; font-weight:600; text-decoration:none; font-size:13px;">
+    ← Volver a Ventas
+  </a>
+</div>
+
+<div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:24px;">
+
+  {# ── Datos del pedido ── #}
+  <div>
+    <div style="font-size:12px; font-weight:700; color:#999; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:12px; padding-bottom:8px; border-bottom:2px solid #f5f5f5;">📦 Datos del Pedido</div>
+    <div style="background:#f9f9f9; padding:16px; border-radius:8px;">
+      <div style="display:flex; justify-content:space-between; padding:8px 0; font-size:13px; border-bottom:0.5px solid #e0e0e0;">
+        <span style="color:#999;">N° Pedido</span>
+        <span style="font-weight:600; color:#e85d04;">#{{ pedido.idPedido }}</span>
+      </div>
+      <div style="display:flex; justify-content:space-between; padding:8px 0; font-size:13px; border-bottom:0.5px solid #e0e0e0;">
+        <span style="color:#999;">Factura</span>
+        <span style="font-weight:600; color:#333;">{% if pedido.factura %}{{ pedido.factura.numeroFactura }}{% else %}—{% endif %}</span>
+      </div>
+      <div style="display:flex; justify-content:space-between; padding:8px 0; font-size:13px; border-bottom:0.5px solid #e0e0e0;">
+        <span style="color:#999;">Fecha</span>
+        <span style="font-weight:600; color:#333;">{{ pedido.fechaPedido|date:"d/m/Y H:i" }}</span>
+      </div>
+      <div style="display:flex; justify-content:space-between; padding:8px 0; font-size:13px; border-bottom:0.5px solid #e0e0e0;">
+        <span style="color:#999;">Método de Pago</span>
+        <span style="font-weight:600; color:#333;">{{ pedido.metodoPago }}</span>
+      </div>
+      <div style="display:flex; justify-content:space-between; padding:8px 0; font-size:13px; border-bottom:0.5px solid #e0e0e0;">
+        <span style="color:#999;">Ciudad</span>
+        <span style="font-weight:600; color:#333;">{{ pedido.ciudad }}</span>
+      </div>
+      <div style="display:flex; justify-content:space-between; padding:8px 0; font-size:13px; border-bottom:0.5px solid #e0e0e0;">
+        <span style="color:#999;">Sede</span>
+        <span style="font-weight:600; color:#333;">{% if pedido.sede %}{{ pedido.sede.nombre }}{% else %}Domicilio{% endif %}</span>
+      </div>
+      <div style="display:flex; justify-content:space-between; padding:8px 0; font-size:13px;">
+        <span style="color:#999;">Total</span>
+        <span style="font-weight:700; color:#e85d04; font-size:16px;">${{ pedido.totalPedido|floatformat:0 }}</span>
+      </div>
+    </div>
+  </div>
+
+  {# ── Datos del cliente ── #}
+  <div>
+    <div style="font-size:12px; font-weight:700; color:#999; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:12px; padding-bottom:8px; border-bottom:2px solid #f5f5f5;">👤 Cliente</div>
+    <div style="background:#f9f9f9; padding:16px; border-radius:8px;">
+      <div style="display:flex; justify-content:space-between; padding:8px 0; font-size:13px; border-bottom:0.5px solid #e0e0e0;">
+        <span style="color:#999;">Nombre</span>
+        <span style="font-weight:600; color:#333;">{{ pedido.idUsuario.nombreUsuario }} {{ pedido.idUsuario.apellidosUsuario }}</span>
+      </div>
+      <div style="display:flex; justify-content:space-between; padding:8px 0; font-size:13px; border-bottom:0.5px solid #e0e0e0;">
+        <span style="color:#999;">Documento</span>
+        <span style="font-weight:600; color:#333;">{{ pedido.idUsuario.tipoDocUsuario }} {{ pedido.idUsuario.numDocUsuario }}</span>
+      </div>
+      <div style="display:flex; justify-content:space-between; padding:8px 0; font-size:13px; border-bottom:0.5px solid #e0e0e0;">
+        <span style="color:#999;">Correo</span>
+        <span style="font-weight:600; color:#333;">{{ pedido.idUsuario.correoUsuario|default:"—" }}</span>
+      </div>
+      <div style="display:flex; justify-content:space-between; padding:8px 0; font-size:13px; border-bottom:0.5px solid #e0e0e0;">
+        <span style="color:#999;">Teléfono</span>
+        <span style="font-weight:600; color:#333;">{{ pedido.idUsuario.telefonoUsuario|default:"—" }}</span>
+      </div>
+      <div style="display:flex; justify-content:space-between; padding:8px 0; font-size:13px;">
+        <span style="color:#999;">Dirección</span>
+        <span style="font-weight:600; color:#333;">{{ pedido.idUsuario.direccionUsuario|default:"—" }}</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+{# ── Productos del pedido ── #}
+<div style="font-size:12px; font-weight:700; color:#999; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:12px; padding-bottom:8px; border-bottom:2px solid #f5f5f5;">🛒 Productos</div>
+<div class="tabla-wrap" style="margin-bottom:24px;">
+  <table class="tabla">
+    <thead>
+      <tr>
+        <th>Producto</th>
+        <th>Categoría</th>
+        <th style="text-align:right;">Precio Unit.</th>
+        <th style="text-align:center;">Cantidad</th>
+        <th style="text-align:right;">Subtotal</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for detalle in pedido.detallepedido_set.all %}
+      <tr>
+        <td><strong>{{ detalle.idProducto.nombreProducto }}</strong></td>
+        <td style="color:var(--dim);">{{ detalle.idProducto.idCategoria_Producto.nombreCategoria|default:"—" }}</td>
+        <td style="text-align:right; color:#666;">${{ detalle.precioUnitario|floatformat:0 }}</td>
+        <td style="text-align:center;">{{ detalle.cantidad }}</td>
+        <td style="text-align:right; font-weight:600;">${{ detalle.precioUnitario|add:0|mul:detalle.cantidad|floatformat:0 }}</td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="5" class="tabla-vacia">Sin productos registrados.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{# ── Estado del pedido ── #}
+<div style="max-width:600px; background:#f9f9f9; padding:20px; border-radius:8px; margin-bottom:24px;">
+  <div style="font-size:12px; font-weight:700; color:#999; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:12px;">Estado Actual</div>
+  
+  <div style="display:flex; gap:12px; align-items:center; margin-bottom:16px;">
+    {% if pedido.estadoPedido == 'Entregado' %}
+      <span class="badge" style="background:#d4edda;color:#155724;padding:4px 8px;border-radius:4px;font-size:11px;font-weight:700;text-transform:uppercase;">Entregado</span>
+    {% elif pedido.estadoPedido == 'Cancelado' %}
+      <span class="badge" style="background:#f8d7da;color:#721c24;padding:4px 8px;border-radius:4px;font-size:11px;font-weight:700;text-transform:uppercase;">Cancelado</span>
+    {% elif pedido.estadoPedido == 'Procesado' %}
+      <span class="badge" style="background:#fff3cd;color:#856404;padding:4px 8px;border-radius:4px;font-size:11px;font-weight:700;text-transform:uppercase;">Procesado</span>
+    {% else %}
+      <span class="badge" style="background:#d1ecf1;color:#0c5460;padding:4px 8px;border-radius:4px;font-size:11px;font-weight:700;text-transform:uppercase;">{{ pedido.estadoPedido }}</span>
+    {% endif %}
+  </div>
+
+  <form method="post" style="display:flex; gap:10px; align-items:center;">
+    {% csrf_token %}
+    <select name="estadoPedido"
+            style="padding:8px 12px; border:1px solid #ddd; border-radius:6px; font-size:13px; flex:1; background:#fff;">
+      {% for estado in estados %}
+      <option value="{{ estado }}" {% if pedido.estadoPedido == estado %}selected{% endif %}>
+        {{ estado }}
+      </option>
+      {% endfor %}
+    </select>
+    <button type="submit"
+            style="padding:8px 18px; background:#e85d04; color:#fff; border:none;
+                   border-radius:6px; font-weight:600; font-size:13px; cursor:pointer; white-space:nowrap;">
+      Guardar Estado
+    </button>
+  </form>
+</div>
+
+{% endblock %}

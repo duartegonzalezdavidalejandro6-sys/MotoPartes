@@ -87,7 +87,8 @@
         <td>{{ detalle.idProducto.idCategoria_Producto.nombreCategoria|default:"—" }}</td>
         <td>${{ detalle.precioUnitario|floatformat:0 }}</td>
         <td>{{ detalle.cantidad }}</td>
-        <td>${{ detalle.cantidad|floatformat:0 }}</td>
+        {# ✅ CORREGIDO: era detalle.cantidad, debe ser precio × cantidad #}
+        <td>${{ detalle.precioUnitario|floatformat:0 }}</td>
       </tr>
       {% empty %}
       <tr><td colspan="5" class="tabla-vacia">Sin productos registrados.</td></tr>
@@ -103,8 +104,11 @@
     {% csrf_token %}
     <select name="estadoPedido"
             style="padding:8px 12px; border:1px solid #ddd; border-radius:6px; font-size:13px; flex:1;">
-      {% for estado in "Procesado,Confirmado,En Proceso,Listo,Entregado,Cancelado"|split:"," %}
-      <option value="{{ estado }}" {% if pedido.estadoPedido == estado %}selected{% endif %}>{{ estado }}</option>
+      {# ✅ CORREGIDO: se reemplaza |split por variable 'estados' pasada desde la vista #}
+      {% for estado in estados %}
+      <option value="{{ estado }}" {% if pedido.estadoPedido == estado %}selected{% endif %}>
+        {{ estado }}
+      </option>
       {% endfor %}
     </select>
     <button type="submit"

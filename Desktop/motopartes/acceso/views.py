@@ -21,15 +21,28 @@ def cerrar_sesion(request):
     logout(request)
     return redirect("index")
 
-
 def login_view(request):
     if request.user.is_authenticated:
         return redirect("index")
     if request.method == "POST":
         username = request.POST.get("username")
         password = request.POST.get("password")
+
         user = authenticate(request, username=username, password=password)
         if user is not None:
+            from .models import Usuarios
+            try:
+                usuario_extra = Usuarios.objects.get(correoUsuario=user.email)
+                if usuario_extra.estadoUsuario == "I":
+                    messages.error(
+                        request,
+                        "⛔ Tu cuenta se encuentra inactiva. "
+                        "Contacta al administrador: jz330777@gmail.com"
+                    )
+                    return render(request, "acceso/registro/login.html")
+            except Usuarios.DoesNotExist:
+                pass
+
             login(request, user)
             if user.is_staff:
                 return redirect("panel_dashboard")
@@ -39,7 +52,6 @@ def login_view(request):
         else:
             messages.error(request, "Usuario o contraseña incorrectos")
     return render(request, "acceso/registro/login.html")
-
 
 def registro(request):
     if request.user.is_authenticated:
@@ -124,9 +136,16 @@ def registro(request):
 
         from django.contrib.auth.models import User
 
-        username = correo.split("@")[0] if correo else num_doc
+        # ✅ Toma el username del formulario
+        username = request.POST.get("usernameUsuario", "").strip()
+
+        if not username:
+            messages.error(request, "El nombre de usuario es obligatorio.")
+            return render(request, "acceso/registro/registro.html", {"form_data": form_data})
+
         if User.objects.filter(username=username).exists():
-            username = f"{username}_{num_doc}"
+            messages.error(request, "Ese nombre de usuario ya está en uso.")
+            return render(request, "acceso/registro/registro.html", {"form_data": form_data})
 
         django_user = User.objects.create_user(
             username=username,
@@ -1702,7 +1721,7 @@ def empleado_compras(request):
     q = request.GET.get("q", "")
     pedidos = (
         Pedido.objects.select_related("idUsuario", "sede", "factura")
-        .prefetch_related("detallepedido__idProducto")
+        .prefetch_related("detallepedido_set__idProducto")
         .order_by("-fechaPedido")
     )
     if q:
@@ -2406,23 +2425,28 @@ def panel_ventas(request):
     total_ingresos_filtrado = pedidos.aggregate(t=Sum("totalPedido"))["t"] or 0
 
     return render(request, "acceso/panel/panel_ventas.html", {
-        "total_ventas": total_ventas,
-        "total_ingresos": total_ingresos,
-        "ticket_promedio": ticket_promedio,
-        "ventas_entregadas": ventas_entregadas,
-        "ventas_hoy": ventas_hoy,
-        "ingresos_hoy": ingresos_hoy,
-        "top_productos": top_productos,
-        "metodos_pago": metodos_pago,
-        "todos_metodos": todos_metodos,
-        "pedidos": pedidos,
-        "total_filtrado": total_filtrado,
-        "total_ingresos_filtrado": total_ingresos_filtrado,
-        "q": q,
-        "estado_filtro": estado_filtro,
-        "metodo_filtro": metodo_filtro,
-        "fecha_desde": fecha_desde,
-        "fecha_hasta": fecha_hasta,
+        "total_ventas":             total_ventas,
+        "total_ingresos":           total_ingresos,
+        "ticket_promedio":          ticket_promedio,
+        "ventas_entregadas":        ventas_entregadas,
+        "ventas_hoy":               ventas_hoy,
+        "ingresos_hoy":             ingresos_hoy,
+        "top_productos":            top_productos,
+        "metodos_pago":             metodos_pago,
+        "todos_metodos":            todos_metodos,
+        "pedidos":                  pedidos,
+        "total_filtrado":           total_filtrado,
+        "total_ingresos_filtrado":  total_ingresos_filtrado,
+        "q":                        q,
+        "estado_filtro":            estado_filtro,
+        "metodo_filtro":            metodo_filtro,
+        "fecha_desde":              fecha_desde,
+        "fecha_hasta":              fecha_hasta,
+        # ✅ AGREGADO: lista de estados para el select del filtro
+        "estados_choices": [
+            "Procesado", "Confirmado", "En Proceso",
+            "Listo", "Entregado", "Cancelado",
+        ],
     })
 
 
@@ -2443,7 +2467,12 @@ def panel_venta_detalle(request, pk):
         messages.success(request, f"Estado de la venta #{pk} actualizado.")
         return redirect("panel_venta_detalle", pk=pk)
 
-    return render(request, "acceso/panel/panel_venta_detalle.html", {"pedido": pedido})
+    estados = ["Procesado", "Confirmado", "En Proceso", "Listo", "Entregado", "Cancelado"]
+
+    return render(request, "acceso/panel/panel_venta_detalle.html", {
+        "pedido": pedido,
+        "estados": estados,
+    })
 
 
 @login_required
@@ -2487,7 +2516,7 @@ def reporte_ventas_pdf(request):
     if fecha_desde:   partes.append(f"Desde: {fecha_desde}")
     if fecha_hasta:   partes.append(f"Hasta: {fecha_hasta}")
 
-    html_string = render_to_string("acceso/panel/reporte_ventas_pdf.html", {
+    html_string = render_to_string("acceso/pdf/reporte_ventas_pdf.html", {
         "pedidos":           pedidos,
         "total_ventas":      pedidos.count(),
         "total_ingresos":    pedidos.aggregate(t=Sum("totalPedido"))["t"] or 0,
@@ -2501,3 +2530,312 @@ def reporte_ventas_pdf(request):
     response = HttpResponse(buffer.read(), content_type="application/pdf")
     response["Content-Disposition"] = 'attachment; filename="reporte_ventas.pdf"'
     return response
+
+@login_required
+def empleado_ventas(request):
+    if not hasattr(request.user, 'empleado'):
+        return redirect('login_empleado')
+    from django.db.models import Avg, Sum
+    from .models import Pedido
+ 
+    q             = request.GET.get('q', '')
+    estado_filtro = request.GET.get('estado', '')
+    fecha_desde   = request.GET.get('fecha_desde', '')
+    fecha_hasta   = request.GET.get('fecha_hasta', '')
+ 
+    pedidos = Pedido.objects.select_related('idUsuario', 'factura').order_by('-fechaPedido')
+ 
+    total_ventas      = pedidos.count()
+    total_ingresos    = pedidos.aggregate(t=Sum('totalPedido'))['t'] or 0
+    ticket_promedio   = pedidos.aggregate(a=Avg('totalPedido'))['a'] or 0
+    ventas_entregadas = pedidos.filter(estadoPedido='Entregado').count()
+ 
+    if q:
+        pedidos = pedidos.filter(
+            Q(idUsuario__nombreUsuario__icontains=q)
+            | Q(idUsuario__apellidosUsuario__icontains=q)
+            | Q(factura__numeroFactura__icontains=q)
+            | Q(ciudad__icontains=q)
+        )
+    if estado_filtro:
+        pedidos = pedidos.filter(estadoPedido=estado_filtro)
+    if fecha_desde:
+        pedidos = pedidos.filter(fechaPedido__date__gte=fecha_desde)
+    if fecha_hasta:
+        pedidos = pedidos.filter(fechaPedido__date__lte=fecha_hasta)
+ 
+    return render(request, 'acceso/empleado/empleado_ventas.html', {
+        'pedidos':                pedidos,
+        'total_ventas':           total_ventas,
+        'total_ingresos':         total_ingresos,
+        'ticket_promedio':        ticket_promedio,
+        'ventas_entregadas':      ventas_entregadas,
+        'total_filtrado':         pedidos.count(),
+        'total_ingresos_filtrado': pedidos.aggregate(t=Sum('totalPedido'))['t'] or 0,
+        'q':                      q,
+        'estado_filtro':          estado_filtro,
+        'fecha_desde':            fecha_desde,
+        'fecha_hasta':            fecha_hasta,
+        'estados_choices': ['Procesado', 'Confirmado', 'En Proceso', 'Listo', 'Entregado', 'Cancelado'],
+    })
+ 
+ 
+@login_required
+def empleado_facturas(request):
+    if not hasattr(request.user, 'empleado'):
+        return redirect('login_empleado')
+    from .models import Factura
+ 
+    q           = request.GET.get('q', '')
+    fecha_desde = request.GET.get('fecha_desde', '')
+    fecha_hasta = request.GET.get('fecha_hasta', '')
+ 
+    facturas = (
+        Factura.objects
+        .select_related('idPedido__idUsuario', 'idPedido__sede')
+        .order_by('-fechaFactura')
+    )
+ 
+    if q:
+        facturas = facturas.filter(
+            Q(numeroFactura__icontains=q)
+            | Q(idPedido__idUsuario__nombreUsuario__icontains=q)
+            | Q(idPedido__idUsuario__apellidosUsuario__icontains=q)
+        )
+    if fecha_desde:
+        facturas = facturas.filter(fechaFactura__date__gte=fecha_desde)
+    if fecha_hasta:
+        facturas = facturas.filter(fechaFactura__date__lte=fecha_hasta)
+ 
+    return render(request, 'acceso/empleado/empleado_facturas.html', {
+        'facturas':    facturas,
+        'total':       facturas.count(),
+        'q':           q,
+        'fecha_desde': fecha_desde,
+        'fecha_hasta': fecha_hasta,
+    })
+
+@login_required
+def empleado_venta_detalle(request, pk):
+    if not hasattr(request.user, 'empleado'):
+        return redirect('login_empleado')
+    from .models import Pedido
+ 
+    pedido = get_object_or_404(
+        Pedido.objects
+        .select_related("idUsuario", "sede", "factura")
+        .prefetch_related("detallepedido_set__idProducto__idCategoria_Producto"),
+        pk=pk,
+    )
+    
+    if request.method == "POST":
+        pedido.estadoPedido = request.POST.get("estadoPedido", pedido.estadoPedido)
+        pedido.save()
+        messages.success(request, f"Estado de la venta #{pk} actualizado.")
+        return redirect("empleado_venta_detalle", pk=pk)
+ 
+    estados = ["Procesado", "Confirmado", "En Proceso", "Listo", "Entregado", "Cancelado"]
+ 
+    return render(request, "acceso/empleado/empleado_venta_detalle.html", {
+        "pedido": pedido,
+        "estados": estados,
+    })
+@login_required
+def empleado_venta_detalle(request, pk):
+    if not hasattr(request.user, 'empleado'):
+        return redirect('login_empleado')
+    from .models import Pedido
+
+    pedido = get_object_or_404(
+        Pedido.objects
+        .select_related("idUsuario", "sede", "factura")
+        .prefetch_related("detallepedido_set__idProducto__idCategoria_Producto"),
+        pk=pk,
+    )
+    
+    if request.method == "POST":
+        pedido.estadoPedido = request.POST.get("estadoPedido", pedido.estadoPedido)
+        pedido.save()
+        messages.success(request, f"Estado de la venta #{pk} actualizado.")
+        return redirect("empleado_venta_detalle", pk=pk)
+
+    estados = ["Procesado", "Confirmado", "En Proceso", "Listo", "Entregado", "Cancelado"]
+
+    return render(request, "acceso/empleado/empleado_venta_detalle.html", {
+        "pedido": pedido,
+        "estados": estados,
+    })
+
+@login_required
+def empleado_reporte_productos_pdf(request):
+    if not hasattr(request.user, "empleado"):
+        return redirect("login_empleado")
+    from django.db.models import Count
+    from django.http import HttpResponse
+    from django.template.loader import render_to_string
+    from django.utils import timezone
+    from .models import CategoriaProducto, Producto
+ 
+    q = request.GET.get("q", "")
+    categoria_id = request.GET.get("categoria", "")
+    estado = request.GET.get("estado", "")
+ 
+    productos = Producto.objects.select_related("idCategoria_Producto").order_by("nombreProducto")
+    if q:
+        productos = productos.filter(nombreProducto__icontains=q)
+    if categoria_id:
+        productos = productos.filter(idCategoria_Producto__idCategoria_Producto=categoria_id)
+    if estado == "Agotado":
+        productos = productos.filter(stock=0)
+    elif estado == "stock_bajo":
+        productos = productos.filter(stock__gt=0, stock__lte=5)
+    elif estado:
+        productos = productos.filter(estadoProducto=estado)
+ 
+    html = render_to_string("acceso/empleado/pdf/empleado_reporte_productos_pdf.html", {
+        "productos": productos,
+        "fecha": timezone.now(),
+        "total": productos.count(),
+        "q": q,
+    })
+    buffer = _generar_pdf(html)
+    response = HttpResponse(buffer, content_type="application/pdf")
+    response["Content-Disposition"] = 'attachment; filename="reporte_productos.pdf"'
+    return response
+ 
+ 
+@login_required
+def empleado_reporte_categorias_pdf(request):
+    if not hasattr(request.user, "empleado"):
+        return redirect("login_empleado")
+    from django.db.models import Count
+    from django.http import HttpResponse
+    from django.template.loader import render_to_string
+    from django.utils import timezone
+    from .models import CategoriaProducto
+ 
+    q = request.GET.get("q", "")
+    categorias = CategoriaProducto.objects.annotate(num_productos=Count("producto")).order_by("nombreCategoria")
+    if q:
+        categorias = categorias.filter(
+            Q(nombreCategoria__icontains=q) | Q(descripcion__icontains=q)
+        )
+ 
+    html = render_to_string("acceso/empleado/pdf/empleado_reporte_categorias_pdf.html", {
+        "categorias": categorias,
+        "fecha": timezone.now(),
+        "total": categorias.count(),
+        "q": q,
+    })
+    buffer = _generar_pdf(html)
+    response = HttpResponse(buffer, content_type="application/pdf")
+    response["Content-Disposition"] = 'attachment; filename="reporte_categorias.pdf"'
+    return response
+ 
+ 
+@login_required
+def empleado_reporte_pedidos_pdf(request):
+    if not hasattr(request.user, "empleado"):
+        return redirect("login_empleado")
+    from django.http import HttpResponse
+    from django.template.loader import render_to_string
+    from django.utils import timezone
+    from .models import Pedido
+ 
+    q = request.GET.get("q", "")
+    estado = request.GET.get("estado", "")
+    sede_id = request.GET.get("sede", "")
+ 
+    pedidos = Pedido.objects.select_related("idUsuario", "sede").order_by("-fechaPedido")
+    if q:
+        pedidos = pedidos.filter(
+            Q(idUsuario__nombreUsuario__icontains=q)
+            | Q(idUsuario__apellidosUsuario__icontains=q)
+            | Q(ciudad__icontains=q)
+        )
+    if estado:
+        pedidos = pedidos.filter(estadoPedido=estado)
+    if sede_id:
+        pedidos = pedidos.filter(sede_id=sede_id)
+ 
+    partes = []
+    if q:       partes.append(f"Búsqueda: {q}")
+    if estado:  partes.append(f"Estado: {estado}")
+ 
+    html = render_to_string("acceso/empleado/pdf/empleado_reporte_pedidos_pdf.html", {
+        "pedidos": pedidos,
+        "fecha": timezone.now(),
+        "total": pedidos.count(),
+        "filtros": " | ".join(partes),
+    })
+    buffer = _generar_pdf(html)
+    response = HttpResponse(buffer, content_type="application/pdf")
+    response["Content-Disposition"] = 'attachment; filename="reporte_pedidos.pdf"'
+    return response
+ 
+ 
+@login_required
+def empleado_reporte_ventas_pdf(request):
+    if not hasattr(request.user, "empleado"):
+        return redirect("login_empleado")
+    from django.db.models import Avg, Sum
+    from django.http import HttpResponse
+    from django.template.loader import render_to_string
+    from django.utils import timezone
+    from .models import Pedido
+ 
+    q = request.GET.get("q", "")
+    estado_filtro = request.GET.get("estado", "")
+    fecha_desde = request.GET.get("fecha_desde", "")
+    fecha_hasta = request.GET.get("fecha_hasta", "")
+ 
+    pedidos = Pedido.objects.select_related("idUsuario", "factura").order_by("-fechaPedido")
+    if q:
+        pedidos = pedidos.filter(
+            Q(idUsuario__nombreUsuario__icontains=q)
+            | Q(idUsuario__apellidosUsuario__icontains=q)
+            | Q(factura__numeroFactura__icontains=q)
+            | Q(ciudad__icontains=q)
+        )
+    if estado_filtro:
+        pedidos = pedidos.filter(estadoPedido=estado_filtro)
+    if fecha_desde:
+        pedidos = pedidos.filter(fechaPedido__date__gte=fecha_desde)
+    if fecha_hasta:
+        pedidos = pedidos.filter(fechaPedido__date__lte=fecha_hasta)
+ 
+    partes = []
+    if q:             partes.append(f"Búsqueda: {q}")
+    if estado_filtro: partes.append(f"Estado: {estado_filtro}")
+    if fecha_desde:   partes.append(f"Desde: {fecha_desde}")
+    if fecha_hasta:   partes.append(f"Hasta: {fecha_hasta}")
+ 
+    html = render_to_string("acceso/empleado/pdf/empleado_reporte_ventas_pdf.html", {
+        "pedidos": pedidos,
+        "total_ventas": pedidos.count(),
+        "total_ingresos": pedidos.aggregate(t=Sum("totalPedido"))["t"] or 0,
+        "ticket_promedio": pedidos.aggregate(a=Avg("totalPedido"))["a"] or 0,
+        "ventas_entregadas": pedidos.filter(estadoPedido="Entregado").count(),
+        "fecha_reporte": timezone.now().strftime("%d/%m/%Y %H:%M"),
+        "filtros": " | ".join(partes),
+    })
+    buffer = _generar_pdf(html)
+    response = HttpResponse(buffer, content_type="application/pdf")
+    response["Content-Disposition"] = 'attachment; filename="reporte_ventas_empleado.pdf"'
+    return response
+
+@login_required
+@user_passes_test(es_admin, login_url="/")
+def panel_cliente_toggle(request, pk):
+    from .models import Usuarios
+
+    if request.method == "POST":
+        cliente = get_object_or_404(Usuarios, pk=pk)
+        if cliente.estadoUsuario == "A":
+            cliente.estadoUsuario = "I"
+            messages.success(request, f"{cliente.nombreUsuario} ha sido inactivado.")
+        else:
+            cliente.estadoUsuario = "A"
+            messages.success(request, f"{cliente.nombreUsuario} ha sido activado.")
+        cliente.save()
+    return redirect("panel_clientes")
