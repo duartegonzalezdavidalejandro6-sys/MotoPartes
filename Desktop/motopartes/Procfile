@@ -1,1 +1,0 @@
-web: gunicorn motopartesetings.wsgi
