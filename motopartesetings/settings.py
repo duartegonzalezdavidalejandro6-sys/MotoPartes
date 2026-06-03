@@ -79,14 +79,17 @@ WSGI_APPLICATION = "motopartesetings.wsgi.application"
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 from pathlib import Path
 
+import pymysql
+pymysql.install_as_MySQLdb()
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'motopartes',      # ← el nombre exacto en phpMyAdmin
-        'USER': 'root',                  # ← usuario de MySQL
-        'PASSWORD': '123456789',                  # ← contraseña (en XAMPP suele estar vacía)
-        'HOST': 'localhost',
-        'PORT': '3306',
+        'NAME': os.environ.get('MYSQLDATABASE', 'motopartes'),
+        'USER': os.environ.get('MYSQLUSER', 'root'),
+        'PASSWORD': os.environ.get('MYSQLPASSWORD', '123456789'),
+        'HOST': os.environ.get('MYSQLHOST', 'localhost'),
+        'PORT': os.environ.get('MYSQLPORT', '3306'),
     }
 }
 
