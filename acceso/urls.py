@@ -106,6 +106,7 @@ urlpatterns = [
         views.descargar_plantilla_productos,
         name="descargar_plantilla_productos",
     ),
+    
     # ── Ventas (nuevo módulo) ──
     path("panel/ventas/", views.panel_ventas, name="panel_ventas"),
     path(
@@ -118,6 +119,7 @@ urlpatterns = [
         views.reporte_ventas_pdf,
         name="reporte_ventas_pdf",
     ),
+    
     # ── Reportes PDF — descarga directa ──
     path(
         "panel/reportes/empleados/pdf/",
