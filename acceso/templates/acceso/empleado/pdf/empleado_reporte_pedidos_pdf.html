@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body { font-family: Arial, sans-serif; font-size: 12px; color: #222; margin: 20px; }
+    h1 { color: #e65c00; font-size: 20px; margin-bottom: 4px; }
+    .meta { color: #555; font-size: 11px; margin-bottom: 16px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th { background-color: #e65c00; color: #fff; padding: 7px 8px; text-align: left; font-size: 11px; }
+    td { padding: 6px 8px; border-bottom: 1px solid #ddd; font-size: 11px; }
+    tr:nth-child(even) td { background-color: #f7f7f7; }
+    .footer { margin-top: 20px; font-size: 10px; color: #888; text-align: center; }
+    .badge { display: inline-block; padding: 2px 7px; border-radius: 4px; font-size: 10px; font-weight: bold; }
+    .b-verde    { background: #d4edda; color: #155724; }
+    .b-rojo     { background: #f8d7da; color: #721c24; }
+    .b-amarillo { background: #fff3cd; color: #856404; }
+    .b-azul     { background: #d1ecf1; color: #0c5460; }
+    .b-naranja  { background: #ffe5d0; color: #b34400; }
+  </style>
+</head>
+<body>
+  <h1>🏍️ MOTOPARTES — Reporte de Pedidos</h1>
+  <div class="meta">
+    Generado el: {{ fecha|date:"d/m/Y H:i" }} &nbsp;|&nbsp; Total: <strong>{{ total }}</strong> pedido(s)
+    {% if filtros %}&nbsp;|&nbsp; Filtros: {{ filtros }}{% endif %}
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Cliente</th>
+        <th>Sede</th>
+        <th>Método pago</th>
+        <th>Total</th>
+        <th>Fecha</th>
+        <th>Estado</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for pedido in pedidos %}
+      <tr>
+        <td>#{{ pedido.idPedido }}</td>
+        <td>{{ pedido.idUsuario.nombreUsuario }} {{ pedido.idUsuario.apellidosUsuario|default:"" }}</td>
+        <td>{{ pedido.sede.nombre|default:"—" }}</td>
+        <td>{{ pedido.metodoPago }}</td>
+        <td><strong>${{ pedido.totalPedido|floatformat:0 }}</strong></td>
+        <td>{{ pedido.fechaPedido|date:"d/m/Y" }}</td>
+        <td>
+          {% if pedido.estadoPedido == 'Entregado' %}
+            <span class="badge b-verde">Entregado</span>
+          {% elif pedido.estadoPedido == 'Cancelado' %}
+            <span class="badge b-rojo">Cancelado</span>
+          {% elif pedido.estadoPedido == 'Procesado' %}
+            <span class="badge b-amarillo">Procesado</span>
+          {% elif pedido.estadoPedido == 'En Proceso' %}
+            <span class="badge b-naranja">En Proceso</span>
+          {% else %}
+            <span class="badge b-azul">{{ pedido.estadoPedido }}</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="7" style="text-align:center; color:#888;">Sin registros</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <div class="footer">Motopartes &copy; {{ fecha|date:"Y" }} — Reporte generado automáticamente</div>
+</body>
+</html>

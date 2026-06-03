@@ -1,0 +1,69 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏍️</text></svg>">
+    <title>Recuperar contraseña — MotoPartes</title>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'acceso/css/recuperar.css' %}">
+</head>
+<body>
+<div class="recuperar-page">
+
+  <div class="recuperar-left">
+    <div class="left-moto">🏍️</div>
+    <div class="left-content">
+      <a href="{% url 'login' %}" class="back-link">← Volver al login</a>
+      <div class="brand-tag">Est. 2018</div>
+      <div class="brand-name">MOTO<span>PARTES</span></div>
+      <p class="brand-desc">Recupera el acceso a tu cuenta en segundos.</p>
+      <div class="left-steps">
+        <div class="left-step"><div class="step-num-big">1</div><div class="step-label">Correo</div></div>
+        <div class="left-step"><div class="step-num-big">2</div><div class="step-label">Link</div></div>
+        <div class="left-step"><div class="step-num-big">3</div><div class="step-label">Listo</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="recuperar-right">
+    <div class="form-wrap">
+      <div class="form-logo">MOTO<span>PARTES</span></div>
+      <h1 class="form-title">¿Olvidaste tu contraseña?</h1>
+      <p class="form-sub">Te enviamos un enlace para restablecerla</p>
+
+      <div class="step-indicator">
+        <div class="step active"><div class="step-circle">1</div><span>Correo</span></div>
+        <div class="step-line"></div>
+        <div class="step pending"><div class="step-circle">2</div><span>Revisa email</span></div>
+        <div class="step-line"></div>
+        <div class="step pending"><div class="step-circle">3</div><span>Nueva clave</span></div>
+      </div>
+
+      {% if messages %}
+        {% for message in messages %}
+          <div class="{% if 'success' in message.tags %}msg-success{% else %}msg-error{% endif %}">{{ message }}</div>
+        {% endfor %}
+      {% else %}
+        <div class="info-box">🔒 Ingresa el correo con el que te registraste. Te enviaremos un enlace que expira en <strong>1 hora</strong>.</div>
+      {% endif %}
+
+      <form method="post">
+        {% csrf_token %}
+        <div class="form-group">
+          <label class="form-label">Correo electrónico</label>
+          <input class="form-input" type="email" name="correo" placeholder="correo@ejemplo.com" required autofocus>
+        </div>
+        <button type="submit" class="form-submit">Enviar enlace →</button>
+      </form>
+
+      <div class="form-footer">
+        <a href="{% url 'login' %}">← Volver a iniciar sesión</a>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body { font-family: Arial, sans-serif; font-size: 12px; color: #222; margin: 20px; }
+    h1 { color: #e65c00; font-size: 20px; margin-bottom: 4px; }
+    .meta { color: #555; font-size: 11px; margin-bottom: 16px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th { background-color: #e65c00; color: #fff; padding: 7px 8px; text-align: left; font-size: 11px; }
+    td { padding: 6px 8px; border-bottom: 1px solid #ddd; font-size: 11px; }
+    tr:nth-child(even) td { background-color: #f7f7f7; }
+    .footer { margin-top: 20px; font-size: 10px; color: #888; text-align: center; }
+    .ok { color: #28a745; font-weight: bold; }
+    .agotado { color: #dc3545; font-weight: bold; }
+    .bajo { color: #fd7e14; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <h1>🏍️ MOTOPARTES — Reporte de Productos</h1>
+  <div class="meta">
+    Generado el: {{ fecha|date:"d/m/Y H:i" }} &nbsp;|&nbsp; Total: <strong>{{ total }}</strong> producto(s)
+    {% if q %}&nbsp;|&nbsp; Búsqueda: "{{ q }}"{% endif %}
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Nombre</th>
+        <th>Categoría</th>
+        <th>Precio</th>
+        <th>Stock</th>
+        <th>Estado</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for p in productos %}
+      <tr>
+        <td>{{ forloop.counter }}</td>
+        <td>{{ p.nombreProducto }}</td>
+        <td>{{ p.idCategoria_Producto.nombreCategoria|default:"—" }}</td>
+        <td>${{ p.precioProducto }}</td>
+        <td>{{ p.stock }}</td>
+        <td>
+          {% if p.stock == 0 %}
+            <span class="agotado">Agotado</span>
+          {% elif p.stock <= 5 %}
+            <span class="bajo">Stock bajo</span>
+          {% else %}
+            <span class="ok">OK</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="6" style="text-align:center; color:#888;">Sin registros</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <div class="footer">Motopartes &copy; {{ fecha|date:"Y" }} — Reporte generado automáticamente</div>
+</body>
+</html>

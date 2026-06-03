@@ -1,0 +1,122 @@
+{% extends 'acceso/panel/base_panel.html' %}
+{% block title %}Detalle Venta #{{ pedido.idPedido }}{% endblock %}
+{% block nav_ventas %}activo{% endblock %}
+{% block topbar_titulo %}Detalle de Venta #{{ pedido.idPedido }}{% endblock %}
+
+{% block content %}
+
+<div style="margin-bottom:16px;">
+  <a href="{% url 'panel_ventas' %}"
+     style="color:#e85d04; font-weight:600; text-decoration:none; font-size:13px;">
+    ← Volver a Ventas
+  </a>
+</div>
+
+<div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:24px;">
+
+  {# ── Datos del pedido ── #}
+  <div>
+    <div class="seccion-header"><span class="seccion-titulo">📦 Datos del Pedido</span></div>
+    <div class="tabla-wrap">
+      <table class="tabla">
+        <tbody>
+          <tr><td><strong>N° Pedido</strong></td><td>#{{ pedido.idPedido }}</td></tr>
+          <tr><td><strong>Factura</strong></td>
+              <td>{% if pedido.factura %}{{ pedido.factura.numeroFactura }}{% else %}—{% endif %}</td></tr>
+          <tr><td><strong>Fecha</strong></td><td>{{ pedido.fechaPedido|date:"d/m/Y H:i" }}</td></tr>
+          <tr><td><strong>Método de Pago</strong></td><td>{{ pedido.metodoPago }}</td></tr>
+          <tr><td><strong>Ciudad</strong></td><td>{{ pedido.ciudad }}</td></tr>
+          <tr><td><strong>Sede</strong></td>
+              <td>{% if pedido.sede %}{{ pedido.sede.nombre }}{% else %}Domicilio{% endif %}</td></tr>
+          <tr><td><strong>Total</strong></td>
+              <td><strong style="color:#e85d04; font-size:16px;">${{ pedido.totalPedido|floatformat:0 }}</strong></td></tr>
+          <tr><td><strong>Estado</strong></td>
+              <td>
+                {% if pedido.estadoPedido == 'Entregado' %}
+                  <span class="badge badge-verde">Entregado</span>
+                {% elif pedido.estadoPedido == 'Cancelado' %}
+                  <span class="badge badge-rojo">Cancelado</span>
+                {% elif pedido.estadoPedido == 'Procesado' %}
+                  <span class="badge badge-amarillo">Procesado</span>
+                {% else %}
+                  <span class="badge badge-azul">{{ pedido.estadoPedido }}</span>
+                {% endif %}
+              </td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  {# ── Datos del cliente ── #}
+  <div>
+    <div class="seccion-header"><span class="seccion-titulo">👤 Cliente</span></div>
+    <div class="tabla-wrap">
+      <table class="tabla">
+        <tbody>
+          <tr><td><strong>Nombre</strong></td>
+              <td>{{ pedido.idUsuario.nombreUsuario }} {{ pedido.idUsuario.apellidosUsuario }}</td></tr>
+          <tr><td><strong>Documento</strong></td>
+              <td>{{ pedido.idUsuario.tipoDocUsuario }} {{ pedido.idUsuario.numDocUsuario }}</td></tr>
+          <tr><td><strong>Correo</strong></td><td>{{ pedido.idUsuario.correoUsuario|default:"—" }}</td></tr>
+          <tr><td><strong>Teléfono</strong></td><td>{{ pedido.idUsuario.telefonoUsuario|default:"—" }}</td></tr>
+          <tr><td><strong>Dirección</strong></td><td>{{ pedido.idUsuario.direccionUsuario|default:"—" }}</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+{# ── Productos del pedido ── #}
+<div class="seccion-header"><span class="seccion-titulo">🛒 Productos</span></div>
+<div class="tabla-wrap" style="margin-bottom:24px;">
+  <table class="tabla">
+    <thead>
+      <tr>
+        <th>Producto</th>
+        <th>Categoría</th>
+        <th>Precio Unit.</th>
+        <th>Cantidad</th>
+        <th>Subtotal</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for detalle in pedido.detallepedido_set.all %}
+      <tr>
+        <td>{{ detalle.idProducto.nombreProducto }}</td>
+        <td>{{ detalle.idProducto.idCategoria_Producto.nombreCategoria|default:"—" }}</td>
+        <td>${{ detalle.precioUnitario|floatformat:0 }}</td>
+        <td>{{ detalle.cantidad }}</td>
+        {# ✅ CORREGIDO: era detalle.cantidad, debe ser precio × cantidad #}
+        <td>${{ detalle.precioUnitario|floatformat:0 }}</td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="5" class="tabla-vacia">Sin productos registrados.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{# ── Cambiar estado ── #}
+<div style="max-width:400px;">
+  <div class="seccion-header"><span class="seccion-titulo">✏️ Cambiar Estado</span></div>
+  <form method="post" style="display:flex; gap:10px; align-items:center; margin-top:12px;">
+    {% csrf_token %}
+    <select name="estadoPedido"
+            style="padding:8px 12px; border:1px solid #ddd; border-radius:6px; font-size:13px; flex:1;">
+      {# ✅ CORREGIDO: se reemplaza |split por variable 'estados' pasada desde la vista #}
+      {% for estado in estados %}
+      <option value="{{ estado }}" {% if pedido.estadoPedido == estado %}selected{% endif %}>
+        {{ estado }}
+      </option>
+      {% endfor %}
+    </select>
+    <button type="submit"
+            style="padding:8px 18px; background:#e85d04; color:#fff; border:none;
+                   border-radius:6px; font-weight:600; font-size:13px; cursor:pointer;">
+      Guardar
+    </button>
+  </form>
+</div>
+
+{% endblock %}

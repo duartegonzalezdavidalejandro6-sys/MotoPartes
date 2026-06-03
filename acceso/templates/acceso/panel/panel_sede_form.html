@@ -1,0 +1,70 @@
+{% extends 'acceso/panel/base_panel.html' %}
+{% block title %}{{ titulo }}{% endblock %}
+{% block topbar_titulo %}{{ titulo }}{% endblock %}
+
+{% block content %}
+<div class="seccion-header">
+  <span class="seccion-titulo">{{ titulo }}</span>
+  <a href="{% url 'panel_sedes' %}" class="btn btn-dark">← Volver</a>
+</div>
+
+{% for message in messages %}
+<div class="mensaje {{ message.tags }}" style="margin-bottom:12px">{{ message }}</div>
+{% endfor %}
+
+<form method="post">
+  {% csrf_token %}
+  <div class="form-card">
+    <div class="form-section-titulo">Datos de la Sede</div>
+    <div class="form-body">
+      <div class="form-grid">
+
+        <div class="form-group full">
+          <label class="form-label">Nombre de la Sede *</label>
+          <input class="form-control" type="text" name="nombre"
+                 value="{{ sede.nombre|default:'' }}" required
+                 placeholder="Ej: Sede Bogotá Centro">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Ciudad *</label>
+          <input class="form-control" type="text" name="ciudad"
+                 value="{{ sede.ciudad|default:'' }}" required
+                 placeholder="Ej: Bogotá">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Teléfono</label>
+          <input class="form-control" type="text" name="telefono"
+                 value="{{ sede.telefono|default:'' }}"
+                 placeholder="Ej: (601) 234-5678">
+        </div>
+
+        <div class="form-group full">
+          <label class="form-label">Dirección *</label>
+          <input class="form-control" type="text" name="direccion"
+                 value="{{ sede.direccion|default:'' }}" required
+                 placeholder="Ej: Av. Caracas #45-12, Chapinero">
+        </div>
+
+        <div class="form-group full">
+          <label class="form-label">Estado</label>
+          <div style="display:flex;align-items:center;gap:10px;margin-top:6px">
+            <input type="checkbox" name="activa" id="activa"
+                   {% if sede.activa or not sede %}checked{% endif %}
+                   style="width:17px;height:17px;accent-color:var(--naranja);cursor:pointer">
+            <label for="activa" style="font-size:14px;color:#3a3530;cursor:pointer">
+              Sede activa (visible para clientes)
+            </label>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary">💾 Guardar</button>
+      <a href="{% url 'panel_sedes' %}" class="btn btn-dark">Cancelar</a>
+    </div>
+  </div>
+</form>
+{% endblock %}

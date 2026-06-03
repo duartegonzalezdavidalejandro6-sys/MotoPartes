@@ -1,0 +1,349 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏍️</text></svg>">
+  <title>Factura {{ factura.numeroFactura }} — MotoPartes</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600;700&family=Barlow+Condensed:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'acceso/css/styles.css' %}">
+  <link rel="stylesheet" href="{% static 'acceso/css/factura_detalle.css' %}">
+</head>
+<body>
+
+
+<!-- SIDEBAR -->
+
+<aside class="sidebar">
+  <div class="logo-wrap">
+    <div class="logo-name">MOTO<span>PARTES</span></div>
+  </div>
+
+  <nav class="nav-section">
+    <div class="nav-label">Menú</div>
+    <a href="{% url 'index' %}#inicio" class="nav-item active">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+      Inicio
+    </a>
+    <a href="{% url 'index' %}#empresa" class="nav-item">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+      La Empresa
+    </a>
+    <a href="{% url 'productos' %}" class="nav-item">
+  <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <rect x="2" y="3" width="20" height="14" rx="2"/>
+    <path d="M8 21h8M12 17v4"/>
+  </svg>
+  Productos
+</a>
+    <a href="{% url 'index' %}#sedes" class="nav-item">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      Sedes
+    </a>
+    <a href="{% url 'index' %}#contacto" class="nav-item">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.1 1.18 2 2 0 012.11 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 7.09a16 16 0 006 6l.45-.45a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+      Contacto
+    </a>
+  </nav>
+
+  <div style="padding: 16px; margin-top: 12px;">
+    <div class="oferta-box">
+      <div class="oferta-title">OFERTA HOY</div>
+      <div class="oferta-desc">Hasta 30% en frenos y suspensión</div>
+    </div>
+  </div>
+  {% if user.is_authenticated %}
+  <nav class="nav-section" style="border-top:1px solid var(--borde);padding-top:16px;margin-top:8px;">
+    <div class="nav-label">Mi Cuenta</div>
+    <a href="{% url 'ver_carrito' %}" class="nav-item">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg>
+      Mi Carrito
+      {% with total=request.user.carrito.count %}{% if total > 0 %}
+      <span style="margin-left:auto;background:#ff5500;color:#fff;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;">{{ total }}</span>
+      {% endif %}{% endwith %}
+    </a>
+    <a href="{% url 'mis_compras' %}" class="nav-item">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/></svg>Mis Compras
+    </a>
+    <a href="{% url 'mis_facturas' %}" class="nav-item active">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Mis Facturas
+    </a>
+    <a href="{% url 'mi_perfil' %}" class="nav-item">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Mi Perfil
+    </a>
+  </nav>
+  {% endif %}
+
+  <div class="sidebar-footer">
+    <div class="user-info">
+      <div class="user-name">{{ user.get_full_name|default:user.username }}</div>
+      <div style="font-size:10px;letter-spacing:2px;color:var(--naranja);text-transform:uppercase;margin-bottom:8px;">Cliente</div>
+      <a href="{% url 'logout' %}" class="login-btn" style="display:block;text-align:center;text-decoration:none;margin-top:8px;">Cerrar Sesión</a>
+    </div>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="fac-page">
+
+    <div class="fac-acciones no-print">
+      <a href="{% url 'mis_compras' %}" class="fac-back">← Volver a mis compras</a>
+      <button onclick="window.print()" class="fac-btn-imprimir">Imprimir / PDF</button>
+    </div>
+
+
+
+    <!--  TRACKER DE ESTADO — NO SE IMPRIME  -->
+    <div class="tracker-wrap no-print">
+
+      <div class="tracker-header">
+        <div class="tracker-icono {% if pedido.estadoPedido not in 'Entregado,Cancelado' %}pulso{% endif %}">
+          {% if pedido.estadoPedido == 'Entregado' %}
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+          {% elif pedido.estadoPedido == 'Cancelado' %}
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          {% elif pedido.estadoPedido == 'Listo' %}
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          {% else %}
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          {% endif %}
+        </div>
+        <div class="tracker-info-txt">
+          <div class="tracker-estado-label">
+            {% if pedido.estadoPedido == 'Procesado' %}¡Pedido recibido! Estamos revisándolo
+            {% elif pedido.estadoPedido == 'Confirmado' %}Pedido confirmado por el equipo
+            {% elif pedido.estadoPedido == 'En Proceso' %}Tu pedido se está alistando 🔧
+            {% elif pedido.estadoPedido == 'Listo' %}¡Tu pedido está listo para {% if pedido.tipo_entrega == 'domicilio' %}envío{% else %}recoger{% endif %}!
+            {% elif pedido.estadoPedido == 'Entregado' %}Pedido entregado con éxito ✓
+            {% elif pedido.estadoPedido == 'Cancelado' %}Pedido cancelado
+            {% else %}{{ pedido.estadoPedido }}
+            {% endif %}
+          </div>
+          <div class="tracker-estado-sub">
+            Pedido #{{ pedido.idPedido }} · {{ pedido.fechaPedido|date:"d/m/Y H:i" }}
+          </div>
+          {% if pedido.tipo_entrega == 'domicilio' %}
+          <div class="domicilio-tag">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            Entrega a domicilio — {{ pedido.ciudad_domicilio }}
+          </div>
+          {% endif %}
+        </div>
+        <div class="tracker-badge
+          {% if pedido.estadoPedido == 'Procesado' %}badge-procesado
+          {% elif pedido.estadoPedido == 'Confirmado' %}badge-confirmado
+          {% elif pedido.estadoPedido == 'En Proceso' %}badge-en-proceso
+          {% elif pedido.estadoPedido == 'Listo' %}badge-listo
+          {% elif pedido.estadoPedido == 'Entregado' %}badge-entregado
+          {% elif pedido.estadoPedido == 'Cancelado' %}badge-cancelado
+          {% endif %}">
+          {{ pedido.estadoPedido }}
+        </div>
+      </div>
+
+
+      <!-- Barra de pasos -->
+
+
+      {% if pedido.estadoPedido != 'Cancelado' %}
+      <div class="tracker-pasos" id="tracker-pasos">
+        <!-- La línea de progreso se inserta por JS -->
+        <div id="linea-progreso" class="tracker-progreso-linea" style="width:0%"></div>
+
+        <!-- Paso 1: Procesado -->
+        <div class="tracker-paso {% if pedido.estadoPedido == 'Procesado' %}actual{% elif pedido.estadoPedido in 'Confirmado,En Proceso,Listo,Entregado' %}completado{% endif %}">
+          <div class="paso-circulo">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><path d="M12 2a10 10 0 100 20 10 10 0 000-20z"/></svg>
+          </div>
+          <div class="paso-label">Recibido</div>
+        </div>
+
+
+        <!-- Paso 2: Confirmado -->
+
+        <div class="tracker-paso {% if pedido.estadoPedido == 'Confirmado' %}actual{% elif pedido.estadoPedido in 'En Proceso,Listo,Entregado' %}completado{% endif %}">
+          <div class="paso-circulo">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div class="paso-label">Confirmado</div>
+        </div>
+
+        <!-- Paso 3: En Proceso -->
+
+        <div class="tracker-paso {% if pedido.estadoPedido == 'En Proceso' %}actual{% elif pedido.estadoPedido in 'Listo,Entregado' %}completado{% endif %}">
+          <div class="paso-circulo">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14"/></svg>
+          </div>
+          <div class="paso-label">Alistando</div>
+        </div>
+
+        <!-- Paso 4: Listo -->
+
+        <div class="tracker-paso {% if pedido.estadoPedido == 'Listo' %}actual{% elif pedido.estadoPedido == 'Entregado' %}completado{% endif %}">
+          <div class="paso-circulo">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              {% if pedido.tipo_entrega == 'domicilio' %}
+              <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/>
+              {% else %}
+              <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+              {% endif %}
+            </svg>
+          </div>
+          <div class="paso-label">{% if pedido.tipo_entrega == 'domicilio' %}En camino{% else %}Listo{% endif %}</div>
+        </div>
+
+        <!-- Paso 5: Entregado -->
+
+        <div class="tracker-paso {% if pedido.estadoPedido == 'Entregado' %}actual completado{% endif %}">
+          <div class="paso-circulo">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          </div>
+          <div class="paso-label">Entregado</div>
+        </div>
+      </div>
+
+      <!-- Mensaje dinámico -->
+
+      <div class="tracker-mensaje {% if pedido.estadoPedido == 'Entregado' %}entregado{% endif %}">
+        <span class="dot"></span>
+        {% if pedido.estadoPedido == 'Procesado' %}
+          Hemos recibido tu pedido y lo estamos revisando. Pronto lo confirmaremos.
+        {% elif pedido.estadoPedido == 'Confirmado' %}
+          Tu pedido fue confirmado por nuestro equipo. Comenzaremos a alistarlo muy pronto.
+        {% elif pedido.estadoPedido == 'En Proceso' %}
+          Estamos alistando todos tus productos. ¡Ya casi está listo!
+        {% elif pedido.estadoPedido == 'Listo' %}
+          {% if pedido.tipo_entrega == 'domicilio' %}
+            Tu pedido está en camino a {{ pedido.ciudad_domicilio }}. ¡Pronto llegará!
+          {% else %}
+            Tu pedido está listo para recoger en {{ pedido.sede.nombre }}. ¡Te esperamos!
+          {% endif %}
+        {% elif pedido.estadoPedido == 'Entregado' %}
+          ¡Listo! Tu pedido fue entregado exitosamente. Gracias por confiar en MotoPartes.
+        {% endif %}
+      </div>
+
+      {% else %}
+
+      <!-- Cancelado -->
+
+      <div class="tracker-mensaje cancelado">
+        <span class="dot"></span>
+        Este pedido fue cancelado. Si tienes dudas, contáctanos.
+      </div>
+      {% endif %}
+
+    </div>
+
+    <!-- FIN TRACKER -->
+
+    <!-- FACTURA IMPRIMIBLE -->
+     
+    <div class="fac-paper">
+      <div class="fac-top">
+        <div>
+          <div class="fac-logo">MOTO<span>PARTES</span></div>
+          <div class="fac-subtitulo">Factura de Venta Electrónica</div>
+        </div>
+        <div class="fac-num-wrap">
+          <div class="fac-num">{{ factura.numeroFactura }}</div>
+          <div class="fac-fecha">{{ factura.fechaFactura|date:"d/m/Y H:i" }}</div>
+        </div>
+      </div>
+
+      <hr class="fac-divider">
+
+      <div class="fac-grid">
+        <div class="fac-seccion">
+          <div class="fac-seccion-titulo">Datos del cliente</div>
+          <div class="fac-fila"><span>Nombre</span><span>{{ pedido.idUsuario.nombreUsuario }} {{ pedido.idUsuario.apellidosUsuario|default:'' }}</span></div>
+          <div class="fac-fila"><span>Documento</span><span>{{ factura.tipoDocUsuario }} {{ factura.numeroDoc }}</span></div>
+          <div class="fac-fila"><span>Correo</span><span>{{ pedido.idUsuario.correoUsuario|default:'—' }}</span></div>
+        </div>
+        <div class="fac-seccion">
+          {% if pedido.tipo_entrega == 'domicilio' %}
+          <div class="fac-seccion-titulo">Datos de entrega</div>
+          <div class="fac-fila"><span>Tipo</span><span>🛵 Domicilio</span></div>
+          <div class="fac-fila"><span>Ciudad</span><span>{{ pedido.ciudad_domicilio }}</span></div>
+          <div class="fac-fila"><span>Dirección</span><span>{{ pedido.direccion_domicilio }}</span></div>
+          <div class="fac-fila"><span>Barrio</span><span>{{ pedido.barrio_domicilio }}</span></div>
+          <div class="fac-fila"><span>Teléfono</span><span>{{ pedido.telefono_domicilio }}</span></div>
+          {% else %}
+          <div class="fac-seccion-titulo">Sede de recogida</div>
+          {% if pedido.sede %}
+          <div class="fac-fila"><span>Sede</span><span>{{ pedido.sede.nombre }}</span></div>
+          <div class="fac-fila"><span>Dirección</span><span>{{ pedido.sede.direccion }}</span></div>
+          <div class="fac-fila"><span>Ciudad</span><span>{{ pedido.sede.ciudad }}</span></div>
+          {% else %}
+          <div class="fac-fila"><span>Sede</span><span>—</span></div>
+          {% endif %}
+          {% endif %}
+          <div class="fac-fila"><span>Método de pago</span><span>{{ factura.metodoDePago }}</span></div>
+        </div>
+      </div>
+
+      <hr class="fac-divider">
+
+      <div class="fac-tabla-titulo">Detalle del pedido</div>
+      <table class="fac-tabla">
+        <thead>
+          <tr><th>Producto</th><th>Cantidad</th><th>Precio unitario</th><th>Subtotal</th></tr>
+        </thead>
+        <tbody>
+          {% for detalle in detalles %}
+          <tr>
+            <td>{{ detalle.idProducto.nombreProducto }}</td>
+            <td>{{ detalle.cantidad }}</td>
+            <td>${{ detalle.precioUnitario|floatformat:0 }}</td>
+            <td>${% widthratio detalle.precioUnitario 1 detalle.cantidad %}</td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="4" style="text-align:center;color:var(--texto)">Sin detalles</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+      <div class="fac-totales">
+        <div class="fac-total-fila"><span>Subtotal</span><span>${{ factura.subtotal|floatformat:0 }}</span></div>
+        <div class="fac-total-fila"><span>IVA (19%)</span><span>${{ factura.iva|floatformat:0 }}</span></div>
+        {% if pedido.costo_envio and pedido.costo_envio > 0 %}
+        <div class="fac-total-fila"><span>Envío a domicilio</span><span>${{ pedido.costo_envio|floatformat:0 }}</span></div>
+        {% endif %}
+        <div class="fac-total-fila grand"><span>TOTAL PAGADO</span><span>${{ factura.totalPedido|floatformat:0 }}</span></div>
+      </div>
+
+      <div class="fac-pie">Gracias por tu compra — MotoPartes © {{ factura.fechaFactura|date:"Y" }}</div>
+    </div>
+
+  </div>
+</main>
+
+<script>
+  // Animar la línea de progreso según el estado
+  const ESTADOS = ['Procesado', 'Confirmado', 'En Proceso', 'Listo', 'Entregado'];
+  const estadoActual = "{{ pedido.estadoPedido }}";
+  const idx = ESTADOS.indexOf(estadoActual);
+
+  if (idx >= 0) {
+    const totalPasos = ESTADOS.length - 1; // 4 segmentos
+    // El ancho va de 0% (en paso 0) a 100% (en paso 4)
+    // Cada paso ocupa 25%. Si es el paso actual, va hasta el centro del círculo (idx * 25%)
+    // Si está completado, va al siguiente (idx * 25% + 25%)
+    const porcentaje = idx === 0 ? 0 : ((idx / totalPasos) * 100);
+
+    setTimeout(() => {
+      const linea = document.getElementById('linea-progreso');
+      if (linea) {
+        // Ajuste para que la línea vaya entre centros de los círculos
+        // Los círculos están en 0%, 25%, 50%, 75%, 100% del ancho
+        // La línea empieza en left:18px y termina en right:18px
+        linea.style.width = porcentaje + '%';
+      }
+    }, 300);
+  }
+</script>
+<script src="{% static 'acceso/js/theme.js' %}"></script>
+
+</body>
+</html>

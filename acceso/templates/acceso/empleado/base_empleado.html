@@ -1,0 +1,74 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏍️</text></svg>">
+  <title>{% block title %}Panel Empleado{% endblock %} — MotoPartes</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'acceso/css/panel_admin.css' %}">
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    MOTO<span>PARTES</span>
+    <small>Panel Empleado</small>
+  </div>
+  <nav>
+    <div class="nav-section">General</div>
+    <a href="{% url 'panel_empleado' %}" class="nav-link {% block nav_inicio %}{% endblock %}">
+      <span class="icon"></span>Productos
+    </a>
+
+    <div class="nav-section">Operaciones</div>
+    <a href="{% url 'empleado_pedidos' %}" class="nav-link {% block nav_pedidos %}{% endblock %}">
+      <span class="icon"></span>Pedidos
+    </a>
+    <a href="{% url 'empleado_ventas' %}" class="nav-link {% block nav_ventas %}{% endblock %}">
+      <span class="icon"></span>Ventas
+    </a>
+    <a href="{% url 'empleado_compras' %}" class="nav-link {% block nav_compras %}{% endblock %}">
+      <span class="icon"></span>Compras
+    </a>
+
+    <div class="nav-section">Catálogo</div>
+    <a href="{% url 'empleado_categorias' %}" class="nav-link {% block nav_categorias %}{% endblock %}">
+      <span class="icon"></span>Categorías
+    </a>
+
+    <div class="nav-section">Tienda</div>
+    <a href="{% url 'index' %}" class="nav-link">
+      <span class="icon"></span>← Ver Tienda
+    </a>
+  </nav>
+  <div class="sidebar-footer">
+    <strong>{{ request.user.get_full_name|default:request.user.username }}</strong>
+    <a href="{% url 'logout' %}">Cerrar sesión</a>
+  </div>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-titulo">{% block topbar_titulo %}Panel Empleado{% endblock %}</div>
+    <div class="topbar-usuario">Hola, <strong>{{ request.user.get_full_name|default:request.user.username }}</strong></div>
+  </div>
+
+  {% if messages %}
+  <div class="mensajes">
+    {% for message in messages %}
+    <div class="mensaje {{ message.tags }}">{{ message }}</div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <div class="content">
+    {% block content %}{% endblock %}
+  </div>
+</div>
+
+{% block extra_js %}{% endblock %}
+</body>
+</html>

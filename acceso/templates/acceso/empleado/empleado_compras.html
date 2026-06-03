@@ -1,0 +1,57 @@
+{% extends 'acceso/empleado/base_empleado.html' %}
+{% block title %}Compras{% endblock %}
+{% block nav_compras %}activo{% endblock %}
+{% block topbar_titulo %}Compras{% endblock %}
+
+{% block content %}
+<div class="seccion-header" style="margin-bottom:16px;">
+  <span class="seccion-titulo">Compras <span style="font-family:'Barlow',sans-serif;font-size:13px;font-weight:400;color:#9a948c;letter-spacing:0;text-transform:none;margin-left:4px">({{ total }})</span></span>
+</div>
+
+<form method="GET">
+  <div style="background:#f5f5f5;border-radius:10px;padding:12px 16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:20px;">
+    <div style="display:flex;align-items:center;background:#fff;border:1px solid #e0e0e0;border-radius:8px;padding:0 12px;flex:1;min-width:220px;height:40px;">
+      <svg style="width:16px;height:16px;margin-right:8px;flex-shrink:0;" fill="none" stroke="#e85d04" viewBox="0 0 24 24">
+        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+      <input type="text" name="q" value="{{ q }}" placeholder="Buscar por cliente o N° pedido..."
+             style="border:none;outline:none;font-size:13px;width:100%;background:transparent;color:#333;">
+    </div>
+    <button type="submit" style="height:40px;padding:0 20px;background:#e85d04;color:#fff;border:none;border-radius:8px;font-weight:700;font-size:13px;cursor:pointer;">BUSCAR</button>
+    {% if q %}<a href="{% url 'empleado_compras' %}" style="height:40px;padding:0 14px;border:1px solid #ddd;color:#888;border-radius:8px;font-size:13px;text-decoration:none;display:inline-flex;align-items:center;">✕</a>{% endif %}
+  </div>
+</form>
+
+<div class="tabla-wrap">
+  <table class="tabla">
+    <thead>
+      <tr><th>#</th><th>Cliente</th><th>Productos</th><th>Sede</th><th>Pago</th><th>Total</th><th>Fecha</th><th>Estado</th></tr>
+    </thead>
+    <tbody>
+      {% for pedido in pedidos %}
+      <tr>
+        <td style="color:var(--naranja);font-weight:700;">#{{ pedido.idPedido }}</td>
+        <td>
+          <strong>{{ pedido.idUsuario.nombreUsuario }} {{ pedido.idUsuario.apellidosUsuario|default:'' }}</strong>
+          <div style="font-size:11px;color:var(--dim);">{{ pedido.idUsuario.correoUsuario|default:'—' }}</div>
+        </td>
+        <td style="font-size:12px;color:var(--dim);">
+          {% for d in pedido.detallepedido_set.all %}{{ d.idProducto.nombreProducto }}{% if not forloop.last %},<br>{% endif %}{% empty %}—{% endfor %}
+        </td>
+        <td style="color:var(--dim);">{{ pedido.sede.nombre|default:'—' }}</td>
+        <td>{{ pedido.metodoPago }}</td>
+        <td style="color:var(--naranja);font-weight:700;">${{ pedido.totalPedido|floatformat:0 }}</td>
+        <td style="font-size:11px;color:var(--dim);">{{ pedido.fechaPedido|date:"d/m/Y H:i" }}</td>
+        <td>
+          <span class="badge {% if pedido.estadoPedido == 'Entregado' %}badge-verde{% elif pedido.estadoPedido == 'Cancelado' %}badge-rojo{% elif pedido.estadoPedido == 'Procesado' %}badge-azul{% else %}badge-amarillo{% endif %}">
+            {{ pedido.estadoPedido }}
+          </span>
+        </td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="8" class="tabla-vacia">No hay compras registradas.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

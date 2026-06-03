@@ -1,0 +1,323 @@
+/* ══════════════════════════════════════
+   LOGIN — login.css — Tema Claro
+   Ubicación: acceso/static/acceso/css/login.css
+══════════════════════════════════════ */
+
+:root {
+  --bg:      #ffffff;
+  --bg2:     #f5f4f2;
+  --bg3:     #eeecea;
+  --border:  #dddbd4;
+  --naranja: #ff5500;
+  --naranja2:#ff7a00;
+  --texto:   #1a1612;
+  --dim:     #9a948c;
+  --rojo:    #cc3333;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--texto);
+  font-family: 'Barlow', sans-serif;
+  min-height: 100vh;
+}
+
+/* ── Layout dos columnas ── */
+.login-page {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: 100vh;
+}
+
+@media (max-width: 768px) {
+  .login-page { grid-template-columns: 1fr; }
+  .login-left  { display: none; }
+}
+
+/* ── LADO IZQUIERDO ── */
+.login-left {
+  position: relative;
+  overflow: hidden;
+  background: #f5f4f2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.left-bg {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 30% 50%, rgba(255,85,0,0.08) 0%, transparent 60%);
+}
+
+.left-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255,85,0,0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,85,0,0.05) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+.left-glow {
+  position: absolute;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(255,85,0,0.15) 0%, transparent 70%);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.moto-bg {
+  position: absolute;
+  font-size: 180px;
+  opacity: 0.05;
+  bottom: -20px;
+  right: -20px;
+  pointer-events: none;
+  user-select: none;
+}
+
+.left-content {
+  position: relative;
+  z-index: 2;
+  padding: 48px;
+  max-width: 420px;
+}
+
+.back-link {
+  display: inline-block;
+  color: #9a948c;
+  font-size: 13px;
+  text-decoration: none;
+  margin-bottom: 40px;
+  transition: color 0.2s;
+}
+
+.back-link:hover { color: var(--naranja); }
+
+.brand-tag {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  color: var(--naranja);
+  margin-bottom: 8px;
+}
+
+.brand-name {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 52px;
+  letter-spacing: 4px;
+  color: #1a1612;
+  line-height: 1;
+  margin-bottom: 16px;
+}
+
+.brand-name span { color: var(--naranja); }
+
+.brand-desc {
+  font-size: 14px;
+  color: #9a948c;
+  line-height: 1.7;
+  margin-bottom: 40px;
+  max-width: 300px;
+}
+
+.left-stats {
+  display: flex;
+  gap: 32px;
+}
+
+.left-stat-num {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 28px;
+  letter-spacing: 2px;
+  color: var(--naranja);
+}
+
+.left-stat-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #9a948c;
+  margin-top: 2px;
+}
+
+/* ── LADO DERECHO ── */
+.login-right {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 32px;
+  background: var(--bg);
+}
+
+.form-wrap {
+  width: 100%;
+  max-width: 380px;
+}
+
+.form-header { margin-bottom: 32px; }
+
+.form-logo {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 22px;
+  letter-spacing: 3px;
+  color: var(--naranja);
+  margin-bottom: 20px;
+}
+
+.form-logo span { color: #1a1612; }
+
+.form-title {
+  font-size: 26px;
+  font-weight: 700;
+  color: #1a1612;
+  margin-bottom: 6px;
+}
+
+.form-sub {
+  font-size: 13px;
+  color: var(--dim);
+}
+
+/* ── Formulario ── */
+.form-group { margin-bottom: 18px; }
+
+.form-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--dim);
+  margin-bottom: 6px;
+}
+
+.form-input {
+  width: 100%;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  color: #1a1612;
+  padding: 12px 16px;
+  font-family: 'Barlow', sans-serif;
+  font-size: 14px;
+  border-radius: 6px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-input:focus {
+  border-color: var(--naranja);
+  box-shadow: 0 0 0 3px rgba(255,85,0,0.10);
+  background: #ffffff;
+}
+
+.form-input::placeholder { color: #c0bdb5; }
+
+.input-wrap { position: relative; }
+.input-wrap .form-input { padding-right: 44px; }
+
+.toggle-pass {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  color: var(--dim);
+  padding: 4px;
+  transition: color 0.2s;
+}
+
+.toggle-pass:hover { color: var(--naranja); }
+
+/* ── Botón submit ── */
+.form-submit {
+  width: 100%;
+  padding: 13px;
+  margin-top: 8px;
+  background: var(--naranja);
+  border: none;
+  border-radius: 6px;
+  color: #fff;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 17px;
+  letter-spacing: 2px;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+}
+
+.form-submit:hover { background: var(--naranja2); }
+.form-submit:active { transform: scale(0.99); }
+
+/* ── Error ── */
+.form-error {
+  background: rgba(204,51,51,0.07);
+  border: 1px solid rgba(204,51,51,0.25);
+  border-left: 4px solid var(--rojo);
+  color: var(--rojo);
+  padding: 10px 14px;
+  border-radius: 6px;
+  font-size: 13px;
+  margin-bottom: 16px;
+}
+
+/* ── ¿Olvidaste tu contraseña? ── */
+.form-forgot {
+  text-align: center;
+  margin-top: 14px;
+}
+
+.form-forgot a {
+  font-size: 13px;
+  color: var(--dim);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.form-forgot a:hover {
+  color: var(--naranja);
+  text-decoration: underline;
+}
+
+/* ── Separador entre forgot y registro ── */
+.form-divider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 18px 0 0;
+  color: var(--border);
+  font-size: 12px;
+}
+
+.form-divider::before,
+.form-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* ── Footer del form ── */
+.form-footer {
+  text-align: center;
+  margin-top: 16px;
+  font-size: 13px;
+  color: var(--dim);
+}
+
+.form-footer a {
+  color: var(--naranja);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.form-footer a:hover { color: var(--naranja2); }

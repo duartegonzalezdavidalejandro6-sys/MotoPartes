@@ -1,0 +1,514 @@
+{% extends 'acceso/empleado/base_empleado.html' %}
+{% block title %}Ventas — Dashboard{% endblock %}
+{% block nav_ventas %}activo{% endblock %}
+{% block topbar_titulo %}Dashboard de Ventas{% endblock %}
+
+{% block extra_css %}
+<style>
+  /* ── Google Font ── */
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
+
+  .dash-wrap {
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  /* ── Filtro de fechas ── */
+  .dash-filtro {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+    background: #fff;
+    border: 1px solid #e8e8e8;
+    border-radius: 10px;
+    padding: 12px 16px;
+  }
+  .dash-filtro label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #999;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+  }
+  .dash-filtro input[type="date"],
+  .dash-filtro select {
+    height: 36px;
+    padding: 0 10px;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    font-size: 13px;
+    color: #333;
+    background: #fafafa;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .dash-filtro .btn-filtrar {
+    height: 36px;
+    padding: 0 20px;
+    background: #e85d04;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: .5px;
+    cursor: pointer;
+    text-transform: uppercase;
+  }
+  .dash-filtro .btn-limpiar {
+    height: 36px;
+    padding: 0 14px;
+    background: #f5f5f5;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    font-size: 12px;
+    color: #888;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  /* ── KPI cards ── */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+  .kpi-card {
+    background: #fff;
+    border: 1px solid #efefef;
+    border-radius: 12px;
+    padding: 18px 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .kpi-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 4px; height: 100%;
+    border-radius: 12px 0 0 12px;
+  }
+  .kpi-card.verde::before  { background: #22c55e; }
+  .kpi-card.naranja::before{ background: #e85d04; }
+  .kpi-card.azul::before   { background: #3b82f6; }
+  .kpi-card.morado::before { background: #8b5cf6; }
+  .kpi-card.rosa::before   { background: #ec4899; }
+
+  .kpi-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: #aaa;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+  }
+  .kpi-value {
+    font-family: 'DM Mono', monospace;
+    font-size: 22px;
+    font-weight: 500;
+    color: #1a1a1a;
+    line-height: 1;
+  }
+  .kpi-sub {
+    font-size: 11px;
+    color: #bbb;
+    margin-top: 6px;
+  }
+
+  /* ── Panel layout ── */
+  .dash-panels {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+  .dash-panel {
+    background: #fff;
+    border: 1px solid #efefef;
+    border-radius: 12px;
+    padding: 20px;
+  }
+  .dash-panel.full { grid-column: 1 / -1; }
+  .panel-title {
+    font-size: 11px;
+    font-weight: 700;
+    color: #aaa;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    margin-bottom: 16px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #f0f0f0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  /* ── Barras horizontales (productos) ── */
+  .prod-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .prod-row:last-child { margin-bottom: 0; }
+  .prod-name {
+    font-size: 12px;
+    font-weight: 600;
+    color: #333;
+    width: 160px;
+    flex-shrink: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .prod-bar-bg {
+    flex: 1;
+    height: 8px;
+    background: #f0f0f0;
+    border-radius: 99px;
+    overflow: hidden;
+  }
+  .prod-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #e85d04, #ff9a3c);
+    border-radius: 99px;
+    transition: width .6s ease;
+  }
+  .prod-qty {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: #888;
+    width: 50px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  /* ── Distribución de estados ── */
+  .estado-list { list-style: none; padding: 0; margin: 0; }
+  .estado-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid #f5f5f5;
+    font-size: 13px;
+  }
+  .estado-item:last-child { border-bottom: none; }
+  .estado-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 8px;
+    flex-shrink: 0;
+  }
+  .estado-count {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    font-weight: 500;
+  }
+
+  /* ── Métodos de pago ── */
+  .metodo-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 9px 12px;
+    background: #fafafa;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    font-size: 13px;
+  }
+  .metodo-row:last-child { margin-bottom: 0; }
+  .metodo-pct {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: #e85d04;
+    font-weight: 600;
+  }
+
+  /* ── Ingresos por día (mini chart) ── */
+  .chart-bars {
+    display: flex;
+    align-items: flex-end;
+    gap: 4px;
+    height: 80px;
+    margin-bottom: 4px;
+  }
+  .chart-bar-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100%;
+    justify-content: flex-end;
+  }
+  .chart-bar-fill {
+    width: 100%;
+    background: linear-gradient(180deg, #e85d04, #ff9a3c);
+    border-radius: 4px 4px 0 0;
+    min-height: 3px;
+    transition: height .5s ease;
+  }
+  .chart-labels {
+    display: flex;
+    gap: 4px;
+    margin-top: 4px;
+  }
+  .chart-label {
+    flex: 1;
+    text-align: center;
+    font-size: 9px;
+    color: #bbb;
+    font-family: 'DM Mono', monospace;
+  }
+
+  /* ── Tabla reciente ── */
+  .tabla-reciente {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+  .tabla-reciente th {
+    font-size: 10px;
+    font-weight: 700;
+    color: #bbb;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 0 0 10px;
+    text-align: left;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  .tabla-reciente td {
+    padding: 9px 0;
+    border-bottom: 1px solid #f8f8f8;
+    color: #333;
+    vertical-align: middle;
+  }
+  .tabla-reciente tbody tr:last-child td { border-bottom: none; }
+  .badge-mini {
+    padding: 2px 7px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+
+  @media (max-width: 700px) {
+    .dash-panels { grid-template-columns: 1fr; }
+    .dash-panel.full { grid-column: 1; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dash-wrap">
+
+  {# ── Filtro de rango de fechas ── #}
+  <form method="get" class="dash-filtro">
+    <label>Desde</label>
+    <input type="date" name="fecha_desde" value="{{ fecha_desde }}">
+    <label>Hasta</label>
+    <input type="date" name="fecha_hasta" value="{{ fecha_hasta }}">
+    <label>Estado</label>
+    <select name="estado">
+      <option value="">Todos</option>
+      {% for e in estados_choices %}
+      <option value="{{ e }}" {% if estado_filtro == e %}selected{% endif %}>{{ e }}</option>
+      {% endfor %}
+    </select>
+    <button type="submit" class="btn-filtrar">Filtrar</button>
+    {% if fecha_desde or fecha_hasta or estado_filtro %}
+    <a href="{% url 'empleado_ventas' %}" class="btn-limpiar">✕ Limpiar</a>
+    {% endif %}
+
+    <span style="margin-left:auto; font-size:12px; color:#bbb;">
+      {{ total_filtrado }} venta(s) en el período
+    </span>
+  </form>
+
+  {# ── KPIs ── #}
+  <div class="kpi-grid">
+    <div class="kpi-card naranja">
+      <div class="kpi-label">Ingresos Totales</div>
+      <div class="kpi-value">${{ total_ingresos_filtrado|floatformat:0 }}</div>
+      <div class="kpi-sub">en el período seleccionado</div>
+    </div>
+    <div class="kpi-card azul">
+      <div class="kpi-label">N° de Ventas</div>
+      <div class="kpi-value">{{ total_filtrado }}</div>
+      <div class="kpi-sub">pedidos completados</div>
+    </div>
+    <div class="kpi-card verde">
+      <div class="kpi-label">Ticket Promedio</div>
+      <div class="kpi-value">${{ ticket_promedio|floatformat:0 }}</div>
+      <div class="kpi-sub">por venta</div>
+    </div>
+    <div class="kpi-card morado">
+      <div class="kpi-label">Entregadas</div>
+      <div class="kpi-value">{{ ventas_entregadas }}</div>
+      <div class="kpi-sub">pedidos entregados</div>
+    </div>
+    <div class="kpi-card rosa">
+      <div class="kpi-label">Unidades Vendidas</div>
+      <div class="kpi-value">{{ total_unidades|default:"—" }}</div>
+      <div class="kpi-sub">productos despachados</div>
+    </div>
+  </div>
+
+  {# ── Panels: gráfica días + estados ── #}
+  <div class="dash-panels">
+
+    {# Ingresos por día #}
+    <div class="dash-panel">
+      <div class="panel-title">📈 Ingresos por Día</div>
+      {% if ingresos_por_dia %}
+        {% with max_val=ingresos_por_dia|dictsort:"total"|last %}
+        <div class="chart-bars">
+          {% for dia in ingresos_por_dia %}
+            {% if max_val.total > 0 %}
+              {% widthratio dia.total max_val.total 80 as h %}
+            {% else %}
+              {% with h=3 %}{% endwith %}
+            {% endif %}
+            <div class="chart-bar-col">
+              <div class="chart-bar-fill" style="height:{{ h|default:3 }}px;"
+                   title="{{ dia.fecha|date:'d/m' }}: ${{ dia.total|floatformat:0 }}"></div>
+            </div>
+          {% endfor %}
+        </div>
+        <div class="chart-labels">
+          {% for dia in ingresos_por_dia %}
+          <span class="chart-label">{{ dia.fecha|date:"d" }}</span>
+          {% endfor %}
+        </div>
+        {% endwith %}
+      {% else %}
+        <div style="height:80px;display:flex;align-items:center;justify-content:center;color:#ccc;font-size:12px;">Sin datos en el período</div>
+      {% endif %}
+    </div>
+
+    {# Estados #}
+    <div class="dash-panel">
+      <div class="panel-title">🎯 Distribución por Estado</div>
+      <ul class="estado-list">
+        {% for item in estados_resumen %}
+        <li class="estado-item">
+          <span>
+            <span class="estado-dot" style="background:
+              {% if item.estado == 'Entregado' %}#22c55e
+              {% elif item.estado == 'Cancelado' %}#ef4444
+              {% elif item.estado == 'Procesado' %}#f59e0b
+              {% else %}#3b82f6{% endif %};"></span>
+            {{ item.estado }}
+          </span>
+          <span style="display:flex;align-items:center;gap:12px;">
+            <span style="font-size:11px;color:#bbb;">{{ item.pct|floatformat:0 }}%</span>
+            <span class="estado-count">{{ item.cantidad }}</span>
+          </span>
+        </li>
+        {% empty %}
+        <li style="color:#ccc;font-size:12px;text-align:center;padding:20px 0;">Sin datos</li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    {# Productos más vendidos #}
+    <div class="dash-panel">
+      <div class="panel-title">🏆 Productos Más Vendidos</div>
+      {% if productos_top %}
+        {% with max_qty=productos_top.0.total_vendido %}
+        {% for prod in productos_top %}
+        <div class="prod-row">
+          <span class="prod-name" title="{{ prod.nombre }}">{{ prod.nombre }}</span>
+          <div class="prod-bar-bg">
+            <div class="prod-bar-fill"
+                 style="width:{% widthratio prod.total_vendido max_qty 100 %}%;"></div>
+          </div>
+          <span class="prod-qty">{{ prod.total_vendido }} u.</span>
+        </div>
+        {% endfor %}
+        {% endwith %}
+      {% else %}
+        <div style="color:#ccc;font-size:12px;text-align:center;padding:20px 0;">Sin datos en el período</div>
+      {% endif %}
+    </div>
+
+    {# Métodos de pago #}
+    <div class="dash-panel">
+      <div class="panel-title">💳 Métodos de Pago</div>
+      {% for mp in metodos_pago %}
+      <div class="metodo-row">
+        <span style="font-weight:600;color:#333;">{{ mp.metodoPago }}</span>
+        <span style="display:flex;align-items:center;gap:12px;">
+          <span style="font-size:11px;color:#bbb;">{{ mp.cantidad }} ventas</span>
+          <span class="metodo-pct">${{ mp.total_mp|floatformat:0 }}</span>
+        </span>
+      </div>
+      {% empty %}
+      <div style="color:#ccc;font-size:12px;text-align:center;padding:20px 0;">Sin datos</div>
+      {% endfor %}
+    </div>
+
+    {# Ventas recientes #}
+    <div class="dash-panel full">
+      <div class="panel-title" style="justify-content:space-between;">
+        <span>🕐 Ventas Recientes</span>
+        <a href="{% url 'empleado_reporte_ventas_pdf' %}{% if fecha_desde or fecha_hasta or estado_filtro %}?fecha_desde={{ fecha_desde }}&fecha_hasta={{ fecha_hasta }}&estado={{ estado_filtro }}{% endif %}"
+           style="font-size:11px;color:#e85d04;font-weight:700;text-decoration:none;
+                  padding:4px 10px;border:1px solid #e85d04;border-radius:5px;">
+          ↓ PDF
+        </a>
+      </div>
+      <table class="tabla-reciente">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Cliente</th>
+            <th>Método</th>
+            <th>Productos</th>
+            <th>Total</th>
+            <th>Estado</th>
+            <th>Fecha</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for pedido in pedidos_recientes %}
+          <tr>
+            <td style="color:#e85d04;font-weight:700;font-family:'DM Mono',monospace;">#{{ pedido.idPedido }}</td>
+            <td>
+              <strong>{{ pedido.idUsuario.nombreUsuario }} {{ pedido.idUsuario.apellidosUsuario }}</strong>
+              <div style="font-size:10px;color:#bbb;">{{ pedido.idUsuario.correoUsuario|default:'—' }}</div>
+            </td>
+            <td style="color:#666;">{{ pedido.metodoPago }}</td>
+            <td style="color:#888;">
+              {% for det in pedido.detallepedido_set.all|slice:":2" %}
+                <span style="font-size:11px;">{{ det.idProducto.nombreProducto }}{% if not forloop.last %},{% endif %}</span>
+              {% endfor %}
+              {% if pedido.detallepedido_set.count > 2 %}
+                <span style="font-size:10px;color:#bbb;">+{{ pedido.detallepedido_set.count|add:"-2" }} más</span>
+              {% endif %}
+            </td>
+            <td style="color:#e85d04;font-weight:700;font-family:'DM Mono',monospace;">${{ pedido.totalPedido|floatformat:0 }}</td>
+            <td>
+              <span class="badge-mini"
+                style="background:{% if pedido.estadoPedido == 'Entregado' %}#dcfce7{% elif pedido.estadoPedido == 'Cancelado' %}#fee2e2{% elif pedido.estadoPedido == 'Procesado' %}#fef9c3{% else %}#dbeafe{% endif %};
+                       color:{% if pedido.estadoPedido == 'Entregado' %}#166534{% elif pedido.estadoPedido == 'Cancelado' %}#991b1b{% elif pedido.estadoPedido == 'Procesado' %}#854d0e{% else %}#1e40af{% endif %};">
+                {{ pedido.estadoPedido }}
+              </span>
+            </td>
+            <td style="color:#bbb;font-size:11px;font-family:'DM Mono',monospace;">{{ pedido.fechaPedido|date:"d/m/Y" }}</td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="7" style="text-align:center;color:#ccc;padding:24px;font-size:12px;">Sin ventas en el período seleccionado.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
