@@ -1980,17 +1980,10 @@ def panel_campana(request):
             )
 
             for correo in correos:
-                try:
-                    send_mail(
-                        subject=asunto,
-                        message=mensaje,
-                        from_email=None,
-                        recipient_list=[correo],
-                        html_message=html_campana,
-                        fail_silently=False,
-                    )
+                ok = _enviar_mailersend(correo, correo, asunto, mensaje, html_campana)
+                if ok:
                     enviados += 1
-                except Exception:
+                else:
                     fallidos += 1
 
             resultado = {
