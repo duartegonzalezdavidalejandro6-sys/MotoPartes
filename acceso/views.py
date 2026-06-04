@@ -1910,7 +1910,6 @@ def reporte_sedes_pdf(request):
 @user_passes_test(es_admin, login_url="/")
 def panel_campana(request):
     from django.contrib.auth.models import User
-    from django.core.mail import send_mail
     from django.template.loader import render_to_string
 
     from .models import Usuarios
