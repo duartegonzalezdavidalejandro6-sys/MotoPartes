@@ -2617,31 +2617,6 @@ def empleado_venta_detalle(request, pk):
         "pedido": pedido,
         "estados": estados,
     })
-@login_required
-def empleado_venta_detalle(request, pk):
-    if not hasattr(request.user, 'empleado'):
-        return redirect('login_empleado')
-    from .models import Pedido
-
-    pedido = get_object_or_404(
-        Pedido.objects
-        .select_related("idUsuario", "sede", "factura")
-        .prefetch_related("detallepedido_set__idProducto__idCategoria_Producto"),
-        pk=pk,
-    )
-    
-    if request.method == "POST":
-        pedido.estadoPedido = request.POST.get("estadoPedido", pedido.estadoPedido)
-        pedido.save()
-        messages.success(request, f"Estado de la venta #{pk} actualizado.")
-        return redirect("empleado_venta_detalle", pk=pk)
-
-    estados = ["Procesado", "Confirmado", "En Proceso", "Listo", "Entregado", "Cancelado"]
-
-    return render(request, "acceso/empleado/empleado_venta_detalle.html", {
-        "pedido": pedido,
-        "estados": estados,
-    })
 
 @login_required
 def empleado_reporte_productos_pdf(request):
