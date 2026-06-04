@@ -144,6 +144,8 @@ LOGIN_REDIRECT_URL = "/inicio/"
 LOGOUT_REDIRECT_URL = "/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+import cloudinary
+
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
