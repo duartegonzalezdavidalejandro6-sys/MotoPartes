@@ -790,6 +790,7 @@ def panel_empleado_editar(request, pk):
     )
 
 
+
 @login_required
 @user_passes_test(es_admin, login_url="/")
 def panel_empleado_eliminar(request, pk):
