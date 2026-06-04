@@ -2,7 +2,6 @@
 
 from django.shortcuts import render, redirect
 from django.contrib import messages
-from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.contrib.auth.hashers import make_password
 
@@ -31,23 +30,39 @@ def recuperar_solicitud(request):
         reset_link = request.build_absolute_uri(f"/recuperar/nueva-clave/{recuperacion.token}/")
         nombre = user.nombreUsuario
 
-        try:
+       try:
             html_email = render_to_string(
-                "acceso/emails/recuperar_password.html",  # ← correo en emails/
+                "acceso/emails/recuperar_password.html",
                 {
                     "nombre": nombre,
                     "link": reset_link,
                 }
             )
 
-            send_mail(
-                subject="🔒 Recupera tu contraseña — MotoPartes",
-                message=f"Hola {nombre}, ingresa a este enlace para recuperar tu contraseña: {reset_link}",
-                from_email=None,
-                recipient_list=[correo],
-                html_message=html_email,
-                fail_silently=False,
+            import requests as http_requests
+            from django.conf import settings
+
+            response = http_requests.post(
+                "https://api.mailersend.com/v1/email",
+                headers={
+                    "Authorization": f"Bearer {settings.MAILERSEND_API_KEY}",
+                    "Content-Type": "application/json",
+                },
+                json={
+                    "from": {
+                        "email": settings.MAILERSEND_FROM_EMAIL,
+                        "name": settings.MAILERSEND_FROM_NAME,
+                    },
+                    "to": [{"email": correo, "name": nombre}],
+                    "subject": "🔒 Recupera tu contraseña — MotoPartes",
+                    "text": f"Hola {nombre}, ingresa a este enlace para recuperar tu contraseña: {reset_link}",
+                    "html": html_email,
+                },
+                timeout=10,
             )
+
+            if response.status_code not in (200, 202):
+                raise Exception(f"MailerSend error: {response.text}")
 
             messages.success(request, "✅ Hemos enviado un enlace de recuperación a tu correo. Expira en 1 hora.")
             return redirect("login")
@@ -57,8 +72,6 @@ def recuperar_solicitud(request):
             recuperacion.delete()
             messages.error(request, "Error al enviar el correo. Intenta más tarde.")
             return render(request, "acceso/registro/recuperar/recuperar_solicitud.html")
-
-    return render(request, "acceso/registro/recuperar/recuperar_solicitud.html")
 
 
 def recuperar_nueva_clave(request, token):
