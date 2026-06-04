@@ -98,6 +98,6 @@ wsproto==1.2.0
 yarl==1.22.0
 django-import-export==4.4.1
 whitenoise>=6.7.0
-cloudinary
+cloudinary==1.36.0
 django-cloudinary-storage==0.3.0
 
