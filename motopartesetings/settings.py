@@ -122,7 +122,7 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'MS_RMolyy@test-r6ke4n1o1ovgon12.mlsender.net'
 EMAIL_HOST_PASSWORD = 'mlsn.c2f60531dee8f31b6c2ed1349470c5e5734c4a0b89256a5ef93d4ce0df18e5e5'
-DEFAULT_FROM_EMAIL = 'Motopartes <MS_RMolyy@test-r6ke4n1o1ovgon12.mlsender.net>''
+DEFAULT_FROM_EMAIL = 'Motopartes <MS_RMolyy@test-r6ke4n1o1ovgon12.mlsender.net>'
 
 CELERY_RESULT_BACKEND = "redis://localhost:6379/0"
 CELERY_ACCEPT_CONTENT = ["json"]
