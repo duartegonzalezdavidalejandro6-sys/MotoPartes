@@ -182,24 +182,8 @@ def registro(request):
         )
 
         try:
-            from django.core.mail import send_mail
-            from django.template.loader import render_to_string
-
-            html_bienvenida = render_to_string(
-                "acceso/emails/bienvenida.html",
-                {
-                    "nombre": nombre,
-                    "username": django_user.username,
-                },
-            )
-            send_mail(
-                subject="🏍️ ¡Bienvenido a Motopartes!",
-                message=f"Hola {nombre}, tu cuenta ha sido creada exitosamente.",
-                from_email=None,
-                recipient_list=[correo],
-                html_message=html_bienvenida,
-                fail_silently=True,
-            )
+            html_bienvenida = render_to_string("acceso/emails/bienvenida.html", {"nombre": nombre, "username": django_user.username})
+            _enviar_mailersend(correo, nombre, "🏍️ ¡Bienvenido a Motopartes!", f"Hola {nombre}, tu cuenta ha sido creada.", html_bienvenida)
         except Exception:
             pass
 
