@@ -8,6 +8,32 @@ from django.db.models import Count, Q
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 
+def _enviar_mailersend(destinatario_email, destinatario_nombre, asunto, texto_plano, html):
+    import requests as http_requests
+    from django.conf import settings
+    try:
+        response = http_requests.post(
+            "https://api.mailersend.com/v1/email",
+            headers={
+                "Authorization": f"Bearer {settings.MAILERSEND_API_KEY}",
+                "Content-Type": "application/json",
+            },
+            json={
+                "from": {
+                    "email": settings.MAILERSEND_FROM_EMAIL,
+                    "name": settings.MAILERSEND_FROM_NAME,
+                },
+                "to": [{"email": destinatario_email, "name": destinatario_nombre}],
+                "subject": asunto,
+                "text": texto_plano,
+                "html": html,
+            },
+            timeout=10,
+        )
+        return response.status_code in (200, 202)
+    except Exception:
+        return False
+
 
 # TIENDA PÚBLICA
 def index(request):
