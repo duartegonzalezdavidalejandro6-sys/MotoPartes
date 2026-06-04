@@ -24,7 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = "django-insecure-ib8-obh-s@)&vfmg+n@@r_2+3hid$rat+^8o=-v_bl67t@qtty"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = 'True'
+DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
 ALLOWED_HOSTS = ['*', 'motopartes.up.railway.app']
 CSRF_TRUSTED_ORIGINS = ['https://motopartes.up.railway.app']
