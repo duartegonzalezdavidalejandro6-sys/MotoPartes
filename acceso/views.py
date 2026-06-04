@@ -1218,38 +1218,12 @@ def checkout(request):
         items.delete()
 
         try:
-            from django.core.mail import send_mail
-            from django.template.loader import render_to_string
-
-            detalles_pedido = pedido.detallepedido_set.select_related(
-                "idProducto"
-            ).all()
-
-            html_correo = render_to_string(
-                "acceso/emails/confirmacion_pedido.html",
-                {
-                    "nombre_cliente": usuario_moto.nombreUsuario,
-                    "pedido": pedido,
-                    "factura": factura,
-                    "detalles": detalles_pedido,
-                },
-            )
-
-            send_mail(
-                subject=f"Pedido #{pedido.idPedido} confirmado — Motopartes",
-                message=(
-                    f"Tu pedido #{pedido.idPedido} ha sido confirmado. "
-                    f"Total: ${pedido.totalPedido}"
-                ),
-                from_email=None,
-                recipient_list=[request.user.email],
-                html_message=html_correo,
-                fail_silently=True,
-            )
-
+            detalles_pedido = pedido.detallepedido_set.select_related("idProducto").all()
+            html_correo = render_to_string("acceso/emails/confirmacion_pedido.html", {"nombre_cliente": usuario_moto.nombreUsuario, "pedido": pedido, "factura": factura, "detalles": detalles_pedido})
+            _enviar_mailersend(request.user.email, usuario_moto.nombreUsuario, f"Pedido #{pedido.idPedido} confirmado — Motopartes", f"Tu pedido #{pedido.idPedido} ha sido confirmado.", html_correo)
         except Exception:
             pass
-
+        
         messages.success(
             request,
             f"¡Pedido #{pedido.idPedido} confirmado!"
