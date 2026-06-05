@@ -73,6 +73,9 @@ def recuperar_solicitud(request):
             messages.error(request, "Error al enviar el correo. Intenta más tarde.")
             return render(request, "acceso/registro/recuperar/recuperar_solicitud.html")
  
+    # GET — mostrar el formulario
+    return render(request, "acceso/registro/recuperar/recuperar_solicitud.html")
+ 
  
 def recuperar_nueva_clave(request, token):
     try:
@@ -126,3 +129,4 @@ def recuperar_nueva_clave(request, token):
             return render(request, "acceso/registro/recuperar/recuperar_nueva_clave.html", {"token": token})
  
     return render(request, "acceso/registro/recuperar/recuperar_nueva_clave.html", {"token": token})
+ 
