@@ -14,16 +14,16 @@ from pathlib import Path
 import os
 import pymysql
 pymysql.install_as_MySQLdb()
-
+ 
 BASE_DIR = Path(__file__).resolve().parent.parent
-
-SECRET_KEY = "django-insecure-ib8-obh-s@)&vfmg+n@@r_2+3hid$rat+^8o=-v_bl67t@qtty"
-
+ 
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-ib8-obh-s@)&vfmg+n@@r_2+3hid$rat+^8o=-v_bl67t@qtty')
+ 
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
-
+ 
 ALLOWED_HOSTS = ['*', 'motopartes.up.railway.app']
 CSRF_TRUSTED_ORIGINS = ['https://motopartes.up.railway.app']
-
+ 
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -37,7 +37,7 @@ INSTALLED_APPS = [
     "django_extensions",
     "import_export",
 ]
-
+ 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     'whitenoise.middleware.WhiteNoiseMiddleware',
@@ -48,9 +48,9 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
-
+ 
 ROOT_URLCONF = "motopartesetings.urls"
-
+ 
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
@@ -65,43 +65,43 @@ TEMPLATES = [
         },
     },
 ]
-
+ 
 WSGI_APPLICATION = "motopartesetings.wsgi.application"
-
+ 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': os.environ.get('MYSQLDATABASE', 'motopartes'),
         'USER': os.environ.get('MYSQLUSER', 'root'),
-        'PASSWORD': os.environ.get('MYSQLPASSWORD', '123456789'),
+        'PASSWORD': os.environ.get('MYSQLPASSWORD', ''),
         'HOST': os.environ.get('MYSQLHOST', 'localhost'),
         'PORT': os.environ.get('MYSQLPORT', '3306'),
     }
 }
-
+ 
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
     {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
     {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
-
+ 
 LANGUAGE_CODE = "en-us"
 TIME_ZONE = "UTC"
 USE_I18N = True
 USE_TZ = True
-
+ 
 STATIC_URL = "static/"
 STATICFILES_DIRS = [BASE_DIR / "acceso" / "static"]
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-
+ 
 LOGIN_URL = "/"
 LOGIN_REDIRECT_URL = "/inicio/"
 LOGOUT_REDIRECT_URL = "/"
-
+ 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-
+ 
 # ══════════════════════════════════════════
 # CLOUDINARY
 # ══════════════════════════════════════════
@@ -112,15 +112,19 @@ CLOUDINARY_STORAGE = {
 }
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 MEDIA_URL = '/'
-
+ 
 # ══════════════════════════════════════════
-# CORREO - MailerSend API
+# CORREO - MailerSend SMTP
 # ══════════════════════════════════════════
-EMAIL_BACKEND = 'django.core.mail.backends.dummy.EmailBackend'
-MAILERSEND_API_KEY = 'mlsn.c2f60531dee8f31b6c2ed1349470c5e5734c4a0b89256a5ef93d4ce0df18e5e5'
-MAILERSEND_FROM_EMAIL = 'MS_RMolyy@test-r6ke4n1o1ovgon12.mlsender.net'
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.mailersend.net'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = os.environ.get('MAILERSEND_FROM_EMAIL')
+EMAIL_HOST_PASSWORD = os.environ.get('MAILERSEND_API_KEY')
+DEFAULT_FROM_EMAIL = os.environ.get('MAILERSEND_FROM_EMAIL')
 MAILERSEND_FROM_NAME = 'Motopartes'
-
+ 
 CELERY_RESULT_BACKEND = "redis://localhost:6379/0"
 CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"
