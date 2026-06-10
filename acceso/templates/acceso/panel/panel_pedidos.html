@@ -57,7 +57,7 @@
           {% elif pedido.estadoPedido == 'Cancelado' %}<span class="badge badge-error">Cancelado</span>
           {% else %}<span class="badge">{{ pedido.estadoPedido }}</span>{% endif %}
         </td>
-        <td style="color:#1a1612;font-weight:700;font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:1px">$ {{ pedido.totalPedido }}</td>
+        <td style="color:#1a1612;font-weight:700">$ {{ pedido.totalPedido }}</td>
         <td style="color:#9a948c;font-size:12px">{{ pedido.fechaPedido|date:"d/m/Y" }}</td>
         <td><a href="{% url 'panel_pedido_detalle' pedido.idPedido %}" class="btn btn-secondary btn-sm">Ver</a></td>
       </tr>
