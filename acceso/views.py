@@ -943,7 +943,7 @@ def reporte_empleados_pdf(request):
         "usuario__first_name"
     )
     html = render_to_string(
-        "acceso/pdf/reporte_empleados_pdf.html",
+        "acceso/empleado/pdf/reporte_empleados_pdf.html",
         {
             "empleados": empleados,
             "fecha": timezone.now(),
