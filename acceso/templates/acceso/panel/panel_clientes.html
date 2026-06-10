@@ -11,7 +11,6 @@
 <!-- Filtro búsqueda -->
 <form method="GET">
   <div style="background:#fff;border:1px solid var(--borde);border-radius:10px;padding:16px 20px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px;box-shadow:0 2px 8px rgba(0,0,0,0.04)">
-
     <div style="flex:1;min-width:200px;position:relative">
       <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#c0bdb5;font-size:14px">🔍</span>
       <input type="text" name="q" value="{{ q }}" placeholder="Buscar por nombre, documento o correo..."
@@ -19,13 +18,10 @@
              onfocus="this.style.borderColor='var(--naranja)';this.style.boxShadow='0 0 0 3px rgba(255,85,0,0.09)';this.style.background='#fff'"
              onblur="this.style.borderColor='var(--borde)';this.style.boxShadow='none';this.style.background='var(--carbon)'">
     </div>
-
     <div style="width:1px;height:32px;background:var(--borde);flex-shrink:0"></div>
-
     <button type="submit" class="btn btn-primary btn-sm">Buscar</button>
     <a href="{% url 'reporte_clientes_pdf' %}{% if q %}?q={{ q }}{% endif %}" class="btn btn-ghost btn-sm">📄 PDF</a>
     {% if q %}<a href="{% url 'panel_clientes' %}" class="btn btn-dark btn-sm">✕ Limpiar</a>{% endif %}
-
   </div>
 </form>
 
@@ -43,13 +39,22 @@
 <div class="tabla-wrap">
   <table id="tabla-datos">
     <thead>
-      <tr><th>#</th><th>Nombre</th><th>Documento</th>...<th>Correo</th><th>Teléfono</th><th>Pedidos</th><th>Estado</th><th>Acción</th></tr>
+      <tr>
+        <th>#</th>
+        <th>Nombre</th>
+        <th>Documento</th>
+        <th>Correo</th>
+        <th>Teléfono</th>
+        <th>Pedidos</th>
+        <th>Estado</th>
+        <th>Acción</th>
+      </tr>
     </thead>
     <tbody>
       {% for cliente in clientes %}
       <tr>
-        <td>{{ forloop.counter }}</td>{{ cliente.nombreUsuario }} {{ cliente.apellidosUsuario|default:'' }}</strong></td>
-        <td><strong style="color:#1a1612">{{ cliente.nombreUsuario }}
+        <td>{{ forloop.counter }}</td>
+        <td><strong style="color:#1a1612">{{ cliente.nombreUsuario }} {{ cliente.apellidosUsuario|default:'' }}</strong></td>
         <td style="color:#9a948c">{{ cliente.tipoDocUsuario }} {{ cliente.numDocUsuario }}</td>
         <td style="color:#9a948c">{{ cliente.correoUsuario|default:"—" }}</td>
         <td style="color:#9a948c">{{ cliente.telefonoUsuario|default:"—" }}</td>
@@ -73,7 +78,7 @@
         </td>
       </tr>
       {% empty %}
-      <tr><td colspan="7" style="text-align:center;color:#b0aca4;padding:40px">No hay clientes registrados.</td></tr>
+      <tr><td colspan="8" style="text-align:center;color:#b0aca4;padding:40px">No hay clientes registrados.</td></tr>
       {% endfor %}
     </tbody>
   </table>
