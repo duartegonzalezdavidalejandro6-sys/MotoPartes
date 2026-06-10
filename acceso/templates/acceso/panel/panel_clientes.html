@@ -48,7 +48,7 @@
     <tbody>
       {% for cliente in clientes %}
       <tr>
-        <td><strong style="color:#1a1612">{{ cliente.nombreUsuario }} {{ cliente.apellidosUsuario|default:'' }}</td>
+        <td><strong style="color:#1a1612">{{ cliente.nombreUsuario }} {{ cliente.apellidosUsuario|default:'' }}</strong></td>
         <td style="color:#9a948c">{{ cliente.tipoDocUsuario }} {{ cliente.numDocUsuario }}</td>
         <td style="color:#9a948c">{{ cliente.correoUsuario|default:"—" }}</td>
         <td style="color:#9a948c">{{ cliente.telefonoUsuario|default:"—" }}</td>
