@@ -43,7 +43,7 @@
 <div class="tabla-wrap">
   <table id="tabla-datos">
     <thead>
-    <tr><th>Nombre</th><th>Documento</th><th>Correo</th><th>Teléfono</th><th>Pedidos</th><th>Estado</th><th>Acción</th></tr>
+      <tr><th>Nombre</th><th>Documento</th><th>Correo</th><th>Teléfono</th><th>Pedidos</th><th>Estado</th><th>Acción</th></tr>
     </thead>
     <tbody>
       {% for cliente in clientes %}
@@ -52,27 +52,27 @@
         <td style="color:#9a948c">{{ cliente.tipoDocUsuario }} {{ cliente.numDocUsuario }}</td>
         <td style="color:#9a948c">{{ cliente.correoUsuario|default:"—" }}</td>
         <td style="color:#9a948c">{{ cliente.telefonoUsuario|default:"—" }}</td>
-        <td><span class="badge badge-naranja">{{ cliente.num_pedidos }}</span></td>s
+        <td><span class="badge badge-naranja">{{ cliente.num_pedidos }}</span></td>
         <td>
-  {% if cliente.estadoUsuario == 'A' %}
-    <span class="badge badge-ok">Activo</span>
-  {% else %}
-    <span class="badge badge-error">Inactivo</span>
-  {% endif %}
-</td>
-<td>
-  <form method="POST" action="{% url 'panel_cliente_toggle' cliente.idUsuario %}">
-    {% csrf_token %}
-    {% if cliente.estadoUsuario == 'A' %}
-      <button type="submit" class="btn btn-dark btn-sm">Inactivar</button>
-    {% else %}
-      <button type="submit" class="btn btn-primary btn-sm">Activar</button>
-    {% endif %}
-  </form>
-</td>
+          {% if cliente.estadoUsuario == 'A' %}
+            <span class="badge badge-ok">Activo</span>
+          {% else %}
+            <span class="badge badge-error">Inactivo</span>
+          {% endif %}
+        </td>
+        <td>
+          <form method="POST" action="{% url 'panel_cliente_toggle' cliente.idUsuario %}">
+            {% csrf_token %}
+            {% if cliente.estadoUsuario == 'A' %}
+              <button type="submit" class="btn btn-dark btn-sm">Inactivar</button>
+            {% else %}
+              <button type="submit" class="btn btn-primary btn-sm">Activar</button>
+            {% endif %}
+          </form>
+        </td>
       </tr>
       {% empty %}
-      <tr><td colspan="6" style="text-align:center;color:#b0aca4;padding:40px">No hay clientes registrados.</td></tr>
+      <tr><td colspan="7" style="text-align:center;color:#b0aca4;padding:40px">No hay clientes registrados.</td></tr>
       {% endfor %}
     </tbody>
   </table>
