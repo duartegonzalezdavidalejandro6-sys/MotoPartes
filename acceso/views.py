@@ -993,7 +993,7 @@ def reporte_pedidos_pdf(request):
 
     pedidos = Pedido.objects.select_related("idUsuario").order_by("-fechaPedido")
     html = render_to_string(
-        "acceso/pdf/reporte_pedidos_pdf.html",
+        "acceso/empleado/pdf/reporte_pedidos_pdf.html",
         {
             "pedidos": pedidos,
             "fecha": timezone.now(),
