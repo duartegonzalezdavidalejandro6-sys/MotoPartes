@@ -969,7 +969,7 @@ def reporte_productos_pdf(request):
         "nombreProducto"
     )
     html = render_to_string(
-        "acceso/pdf/reporte_productos_pdf.html",
+        "acceso/empleado/pdf/reporte_productos_pdf.html",
         {
             "productos": productos,
             "fecha": timezone.now(),
