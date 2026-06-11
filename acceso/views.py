@@ -380,6 +380,7 @@ def panel_producto_crear(request):
         request,
         "acceso/panel/panel_producto_form.html",
         {"titulo": "Nuevo Producto", "categorias": categorias},
+        
     )
 
 
@@ -475,29 +476,35 @@ def panel_pedido_detalle(request, pk):
         return redirect("panel_pedido_detalle", pk=pk)
     return render(request, "acceso/panel/panel_pedido_detalle.html", {"pedido": pedido})
 
-
 @login_required
 @user_passes_test(es_admin, login_url="/")
 def panel_clientes(request):
+    from django.contrib.auth.models import User
     from .models import Usuarios
 
     q = request.GET.get("q", "")
     clientes = Usuarios.objects.annotate(num_pedidos=Count("pedido")).order_by(
         "nombreUsuario"
     )
-
     if q:
         clientes = clientes.filter(
             Q(nombreUsuario__icontains=q)
             | Q(correoUsuario__icontains=q)
             | Q(numDocUsuario__icontains=q)
         )
+
+    for cliente in clientes:
+        try:
+            django_user = User.objects.get(email=cliente.correoUsuario)
+            cliente.username_django = django_user.username
+        except User.DoesNotExist:
+            cliente.username_django = "—"
+
     return render(
         request,
         "acceso/panel/panel_clientes.html",
         {"clientes": clientes, "q": q},
     )
-
 
 def login_empleado(request):
     if request.user.is_authenticated and hasattr(request.user, "empleado"):
