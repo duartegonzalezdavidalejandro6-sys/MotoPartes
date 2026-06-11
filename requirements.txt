@@ -1,5 +1,4 @@
 gunicorn
-mailersend
 aiohappyeyeballs==2.6.1
 aiohttp==3.13.3
 aiohttp-jinja2==1.6
