@@ -493,12 +493,9 @@ def panel_clientes(request):
             | Q(numDocUsuario__icontains=q)
         )
 
-    for cliente in clientes:
-        try:
-            django_user = User.objects.get(email=cliente.correoUsuario)
-            cliente.username_django = django_user.username
-        except User.DoesNotExist:
-            cliente.username_django = "—"
+     for cliente in clientes:
+        django_user = User.objects.filter(email=cliente.correoUsuario).first()
+        cliente.username_django = django_user.username if django_user else "—"
 
     return render(
         request,
