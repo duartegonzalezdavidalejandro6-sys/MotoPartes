@@ -110,12 +110,19 @@ def recuperar_nueva_clave(request, token):
             user.save()
  
             from django.contrib.auth.models import User as DjangoUser
-            try:
-                django_user = DjangoUser.objects.get(email=user.correoUsuario)
-                django_user.set_password(clave1)
-                django_user.save()
-            except DjangoUser.DoesNotExist:
-                pass
+
+django_user = None
+try:
+    django_user = DjangoUser.objects.get(email=user.correoUsuario)
+except DjangoUser.DoesNotExist:
+    try:
+        django_user = DjangoUser.objects.get(username=user.correoUsuario)
+    except DjangoUser.DoesNotExist:
+        print(f"❌ No se encontró User de Django para: {user.correoUsuario}")
+
+if django_user:
+    django_user.set_password(clave1)
+    django_user.save()
  
             recuperacion.usado = True
             recuperacion.save()
