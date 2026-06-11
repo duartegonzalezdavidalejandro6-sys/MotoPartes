@@ -114,11 +114,12 @@ DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 MEDIA_URL = '/'
  
 # ══════════════════════════════════════════
-# CORREO - MailerSend SMTP
+# CORREO - MailerSend API HTTP
 # ══════════════════════════════════════════
 MAILERSEND_API_KEY = os.environ.get('MAILERSEND_API_KEY')
-DEFAULT_FROM_EMAIL = os.environ.get('MAILERSEND_FROM_EMAIL')
+MAILERSEND_FROM_EMAIL = os.environ.get('MAILERSEND_FROM_EMAIL')
 MAILERSEND_FROM_NAME = 'Motopartes'
+DEFAULT_FROM_EMAIL = MAILERSEND_FROM_EMAIL
  
 CELERY_RESULT_BACKEND = "redis://localhost:6379/0"
 CELERY_ACCEPT_CONTENT = ["json"]
