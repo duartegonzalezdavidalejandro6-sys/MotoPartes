@@ -476,13 +476,11 @@ def panel_pedido_detalle(request, pk):
         messages.success(request, f"Estado del pedido #{pk} actualizado.")
         return redirect("panel_pedido_detalle", pk=pk)
     return render(request, "acceso/panel/panel_pedido_detalle.html", {"pedido": pedido})
-
 @login_required
 @user_passes_test(es_admin, login_url="/")
 def panel_clientes(request):
     from django.contrib.auth.models import User
     from .models import Usuarios
-
     q = request.GET.get("q", "")
     clientes = Usuarios.objects.annotate(num_pedidos=Count("pedido")).order_by(
         "nombreUsuario"
@@ -493,11 +491,9 @@ def panel_clientes(request):
             | Q(correoUsuario__icontains=q)
             | Q(numDocUsuario__icontains=q)
         )
-
-     for cliente in clientes:
+    for cliente in clientes:
         django_user = User.objects.filter(email=cliente.correoUsuario).first()
         cliente.username_django = django_user.username if django_user else "—"
-
     return render(
         request,
         "acceso/panel/panel_clientes.html",
