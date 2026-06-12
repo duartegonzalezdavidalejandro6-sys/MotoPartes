@@ -288,9 +288,7 @@ def panel_dashboard(request):
     total_clientes = User.objects.filter(is_staff=False).count()
     total_categorias = CategoriaProducto.objects.count()
 
-    ultimos_pedidos = Pedido.objects.select_related("idUsuario").order_by(
-        "-fechaPedido"
-    )[:6]
+    ultimos_pedidos = Pedido.objects.select_related("idUsuario").order_by("id")[:6]
     productos_alerta = Producto.objects.filter(stock__lte=5).order_by("stock")[:8]
 
     return render(
