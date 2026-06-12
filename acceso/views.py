@@ -801,7 +801,7 @@ def panel_categorias(request):
     q = request.GET.get("q", "")
     categorias = CategoriaProducto.objects.annotate(
         num_productos=Count("producto")
-    ).order_by("nombreCategoria")
+    ).order_by("idCategoria_Producto")
     if q:
         categorias = categorias.filter(
             Q(nombreCategoria__icontains=q) | Q(descripcion__icontains=q)
@@ -1358,7 +1358,7 @@ def empleado_categorias(request):
 
     categorias = CategoriaProducto.objects.annotate(
         num_productos=Count("producto")
-    ).order_by("nombreCategoria")
+    ).order_by("idCategoria_Producto")
     return render(
         request,
         "acceso/empleado/empleado_categorias.html",
@@ -1816,7 +1816,7 @@ def reporte_categorias_pdf(request):
     q = request.GET.get("q", "")
     categorias = CategoriaProducto.objects.annotate(
         num_productos=Count("producto")
-    ).order_by("nombreCategoria")
+    ).order_by("idCategoria_Producto")
     if q:
         categorias = categorias.filter(nombreCategoria__icontains=q)
     html = render_to_string(
@@ -2662,7 +2662,7 @@ def empleado_reporte_categorias_pdf(request):
     from .models import CategoriaProducto
  
     q = request.GET.get("q", "")
-    categorias = CategoriaProducto.objects.annotate(num_productos=Count("producto")).order_by("nombreCategoria")
+    categorias = CategoriaProducto.objects.annotate(num_productos=Count("producto")).order_by("idCategoria_Producto")
     if q:
         categorias = categorias.filter(
             Q(nombreCategoria__icontains=q) | Q(descripcion__icontains=q)
