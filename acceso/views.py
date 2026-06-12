@@ -441,7 +441,7 @@ def panel_pedidos(request):
     q = request.GET.get("q", "")
     estado_filtro = request.GET.get("estado", "")
 
-    pedidos = Pedido.objects.select_related("idUsuario").order_by("-fechaPedido")
+    pedidos = Pedido.objects.select_related("idUsuario").order_by("id")
 
     if q:
         pedidos = pedidos.filter(
@@ -990,7 +990,7 @@ def reporte_pedidos_pdf(request):
 
     from .models import Pedido
 
-    pedidos = Pedido.objects.select_related("idUsuario")order_by("id")
+    pedidos = Pedido.objects.select_related("idUsuario").order_by("id")
     html = render_to_string(
         "acceso/empleado/pdf/reporte_pedidos_pdf.html",
         {
@@ -1281,9 +1281,7 @@ def empleado_pedidos(request):
 
     estado = request.GET.get("estado", "")
     sede_id = request.GET.get("sede", "")
-    pedidos = Pedido.objects.select_related("idUsuario", "sede").order_by(
-        "-fechaPedido"
-    )
+    pedidos = Pedido.objects.select_related("idUsuario", "sede").order_by("id")
     if estado:
         pedidos = pedidos.filter(estadoPedido=estado)
     if sede_id:
@@ -1641,7 +1639,7 @@ def mis_compras(request):
     pedidos = (
         Pedido.objects.filter(idUsuario=usuario_moto)
         .select_related("sede")
-        .order_by("-fechaPedido")
+        .order_by("id")
     )
     return render(request, "acceso/mis_compras.html", {"pedidos": pedidos})
 
@@ -1680,9 +1678,7 @@ def panel_compras(request):
     from .models import Pedido
 
     q = request.GET.get("q", "")
-    pedidos = Pedido.objects.select_related("idUsuario", "sede", "factura").order_by(
-        "-fechaPedido"
-    )
+    pedidos = Pedido.objects.select_related("idUsuario", "sede", "factura").order_by("id")
     if q:
         pedidos = pedidos.filter(
             Q(idUsuario__nombreUsuario__icontains=q)
@@ -2356,7 +2352,7 @@ def panel_ventas(request):
         Pedido.objects
         .select_related("idUsuario", "sede", "factura")
         .prefetch_related("detallepedido_set__idProducto")
-        .order_by("-fechaPedido")
+        .order_by("id")
     )
 
     total_ventas      = pedidos.count()
@@ -2467,7 +2463,7 @@ def reporte_ventas_pdf(request):
     fecha_desde   = request.GET.get("fecha_desde", "")
     fecha_hasta   = request.GET.get("fecha_hasta", "")
 
-    pedidos = Pedido.objects.select_related("idUsuario", "factura").order_by("-fechaPedido")
+    pedidos = Pedido.objects.select_related("idUsuario", "factura").order_by("id")
 
     if q:
         pedidos = pedidos.filter(
@@ -2519,7 +2515,7 @@ def empleado_ventas(request):
     fecha_desde   = request.GET.get('fecha_desde', '')
     fecha_hasta   = request.GET.get('fecha_hasta', '')
  
-    pedidos = Pedido.objects.select_related('idUsuario', 'factura').order_by('-fechaPedido')
+    pedidos = Pedido.objects.select_related('idUsuario', 'factura').order_by('id')
  
     total_ventas      = pedidos.count()
     total_ingresos    = pedidos.aggregate(t=Sum('totalPedido'))['t'] or 0
@@ -2697,7 +2693,7 @@ def empleado_reporte_pedidos_pdf(request):
     estado = request.GET.get("estado", "")
     sede_id = request.GET.get("sede", "")
  
-    pedidos = Pedido.objects.select_related("idUsuario", "sede").order_by("-fechaPedido")
+    pedidos = Pedido.objects.select_related("idUsuario", "sede").order_by("id")
     if q:
         pedidos = pedidos.filter(
             Q(idUsuario__nombreUsuario__icontains=q)
@@ -2740,7 +2736,7 @@ def empleado_reporte_ventas_pdf(request):
     fecha_desde = request.GET.get("fecha_desde", "")
     fecha_hasta = request.GET.get("fecha_hasta", "")
  
-    pedidos = Pedido.objects.select_related("idUsuario", "factura").order_by("-fechaPedido")
+    pedidos = Pedido.objects.select_related("idUsuario", "factura").order_by("id")
     if q:
         pedidos = pedidos.filter(
             Q(idUsuario__nombreUsuario__icontains=q)
