@@ -39,7 +39,7 @@
     <tbody>
       {% for emp in empleados %}
       <tr>
-        <td>{{ emp.pk }}</td>
+        <td>{{ forloop.counter }}</td>
         <td><strong style="color:#1a1612">{{ emp.usuario.get_full_name }}</strong></td>
         <td>{{ emp.cedula }}</td>
         <td>
