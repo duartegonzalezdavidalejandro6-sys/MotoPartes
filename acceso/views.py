@@ -1706,7 +1706,7 @@ def empleado_compras(request):
     pedidos = (
         Pedido.objects.select_related("idUsuario", "sede", "factura")
         .prefetch_related("detallepedido_set__idProducto")
-        .order_by("-fechaPedido")
+        .order_by("id")
     )
     if q:
         pedidos = pedidos.filter(
