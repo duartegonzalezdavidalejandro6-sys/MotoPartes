@@ -992,7 +992,7 @@ def reporte_pedidos_pdf(request):
 
     from .models import Pedido
 
-    pedidos = Pedido.objects.select_related("idUsuario").order_by("-fechaPedido")
+    pedidos = Pedido.objects.select_related("idUsuario")order_by("id")
     html = render_to_string(
         "acceso/empleado/pdf/reporte_pedidos_pdf.html",
         {
