@@ -41,7 +41,7 @@
     <tbody>
       {% for sede in sedes %}
       <tr>
-        <td>{{ sede.idSede }}</td>
+        <td>{{ forloop.counter }}</td>
         <td><strong style="color:#1a1612">{{ sede.nombre }}</strong></td>
         <td>{{ sede.ciudad }}</td>
         <td style="color:#9a948c">{{ sede.direccion }}</td>
