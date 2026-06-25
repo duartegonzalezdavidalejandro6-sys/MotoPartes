@@ -116,11 +116,14 @@ MEDIA_URL = '/'
 # ══════════════════════════════════════════
 # CORREO - MailerSend API HTTP
 # ══════════════════════════════════════════
-MAILERSEND_API_KEY = os.environ.get('MAILERSEND_API_KEY')
-MAILERSEND_FROM_EMAIL = os.environ.get('MAILERSEND_FROM_EMAIL')
-MAILERSEND_FROM_NAME = 'Motopartes'
-DEFAULT_FROM_EMAIL = MAILERSEND_FROM_EMAIL
- 
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.mailersend.net'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = os.environ.get('MAILERSEND_SMTP_USER')
+EMAIL_HOST_PASSWORD = os.environ.get('MAILERSEND_API_KEY')
+DEFAULT_FROM_EMAIL = os.environ.get('MAILERSEND_FROM_EMAIL')
+
 CELERY_RESULT_BACKEND = "redis://localhost:6379/0"
 CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"
