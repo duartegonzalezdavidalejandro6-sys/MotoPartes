@@ -57,7 +57,7 @@
     <tbody>
       {% for p in productos %}
       <tr>
-        <td>{{ p.idProducto }}</td>
+       <td>{{ forloop.counter }}</td>
         <td><strong>{{ p.nombreProducto }}</strong></td>
         <td>${{ p.precioProducto }}</td>
         <td>
