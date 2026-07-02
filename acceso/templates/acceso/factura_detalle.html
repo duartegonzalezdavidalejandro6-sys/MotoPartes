@@ -306,7 +306,6 @@
 
       <div class="fac-totales">
         <div class="fac-total-fila"><span>Subtotal</span><span>${{ factura.subtotal|floatformat:0 }}</span></div>
-        <div class="fac-total-fila"><span>IVA (19%)</span><span>${{ factura.iva|floatformat:0 }}</span></div>
         {% if pedido.costo_envio and pedido.costo_envio > 0 %}
         <div class="fac-total-fila"><span>Envío a domicilio</span><span>${{ pedido.costo_envio|floatformat:0 }}</span></div>
         {% endif %}
