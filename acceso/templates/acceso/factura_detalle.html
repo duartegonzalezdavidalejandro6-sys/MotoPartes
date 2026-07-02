@@ -305,12 +305,12 @@
       </table>
 
       <div class="fac-totales">
-        <div class="fac-total-fila"><span>Subtotal</span><span>${{ factura.subtotal|floatformat:0 }}</span></div>
-        {% if pedido.costo_envio and pedido.costo_envio > 0 %}
-        <div class="fac-total-fila"><span>Envío a domicilio</span><span>${{ pedido.costo_envio|floatformat:0 }}</span></div>
-        {% endif %}
-        <div class="fac-total-fila grand"><span>TOTAL PAGADO</span><span>${{ factura.totalPedido|floatformat:0 }}</span></div>
-      </div>
+  <div class="fac-total-fila"><span>Subtotal</span><span>${{ factura.subtotal|floatformat:0 }}</span></div>
+  {% if pedido.costo_envio and pedido.costo_envio > 0 %}
+  <div class="fac-total-fila"><span>Envío a domicilio</span><span>${{ pedido.costo_envio|floatformat:0 }}</span></div>
+  {% endif %}
+  <div class="fac-total-fila grand"><span>TOTAL PAGADO</span><span>${{ factura.subtotal|floatformat:0 }}</span></div>
+</div>
 
       <div class="fac-pie">Gracias por tu compra — MotoPartes © {{ factura.fechaFactura|date:"Y" }}</div>
     </div>
